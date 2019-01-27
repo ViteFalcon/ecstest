@@ -45,6 +45,8 @@ void RenderSystem::configure(entityx::EventManager &eventManager) {
   eventManager.subscribe<entityx::ComponentRemovedEvent<Renderable>>(*this);
   eventManager.subscribe<entityx::ComponentAddedEvent<StaticModel>>(*this);
   eventManager.subscribe<entityx::ComponentRemovedEvent<StaticModel>>(*this);
+  eventManager.subscribe<entityx::ComponentAddedEvent<Light>>(*this);
+  eventManager.subscribe<entityx::ComponentRemovedEvent<Light>>(*this);
   eventManager.subscribe<entityx::EntityDestroyedEvent>(*this);
 }
 
@@ -135,6 +137,44 @@ void RenderSystem::receive(const entityx::EntityDestroyedEvent &event) {
     return;
   }
   mScene->RemoveChild(node);
+}
+
+void RenderSystem::receive(const entityx::ComponentAddedEvent<Light> &event) {
+  auto entity = event.entity;
+  auto renderable = entity.component<Renderable>();
+  if (!renderable) {
+    return;
+  }
+  auto node = GetEntityNode(entity);
+  if (node == nullptr) {
+    URHO3D_LOGERROR("Failed to find node for entity");
+    return;
+  }
+  auto data = event.component;
+  auto light = node->CreateComponent<Urho3D::Light>();
+  light->SetLightType(data->type);
+  light->SetBrightness(data->brightness);
+  light->SetColor(data->color);
+  light->SetRadius(data->radius);
+  light->SetRange(data->range);
+  light->SetFov(data->fov);
+  light->SetLength(data->length);
+  light->SetTemperature(data->temperature);
+  light->SetCastShadows(data->castShadows);
+}
+
+void RenderSystem::receive(const entityx::ComponentRemovedEvent<Light> &event) {
+  auto entity = event.entity;
+  auto renderable = entity.component<Renderable>();
+  if (!renderable) {
+    return;
+  }
+  auto node = GetEntityNode(entity);
+  if (node == nullptr) {
+    URHO3D_LOGERROR("Failed to find node for entity");
+    return;
+  }
+  node->RemoveComponent<Urho3D::Light>();
 }
 
 inline Urho3D::Node *

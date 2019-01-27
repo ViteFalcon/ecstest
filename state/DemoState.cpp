@@ -33,6 +33,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "../systems/MovementSystem.h"
 #include "../systems/RenderSystem.h"
+#include "../components/Light.h"
 
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Graphics/Camera.h>
@@ -97,26 +98,31 @@ DemoState::DemoState(Urho3D::Context *context)
 
   // Create a red directional light (sun)
   {
-    auto lightNode = mScene->CreateChild();
-    lightNode->SetDirection(Urho3D::Vector3::FORWARD);
-    lightNode->Yaw(50);   // horizontal
-    lightNode->Pitch(10); // vertical
-    auto light = lightNode->CreateComponent<Urho3D::Light>();
-    light->SetLightType(Urho3D::LIGHT_DIRECTIONAL);
-    light->SetBrightness(1.6);
-    light->SetColor(Urho3D::Color(1.0, .6, 0.3, 1));
-    light->SetCastShadows(true);
+    auto light = entities.create();
+    light.assign<Renderable>();
+    auto direction = light.assign<Direction>();
+    direction->SetDirection(Urho3D::Vector3::FORWARD);
+    direction->Yaw(50);
+    direction->Pitch(10);
+    auto l = Light{};
+    l.type = Urho3D::LIGHT_DIRECTIONAL;
+    l.brightness = 1.6;
+    l.color = Urho3D::Color(1.0, .6, 0.3, 1);
+    l.castShadows = true;
+    light.assign_from_copy(l);
   }
   // Create a blue point light
   {
-    auto lightNode = mScene->CreateChild("Light");
-    lightNode->SetPosition(Urho3D::Vector3(-10, 2, 5));
-    auto light = lightNode->CreateComponent<Urho3D::Light>();
-    light->SetLightType(Urho3D::LIGHT_POINT);
-    light->SetRange(25);
-    light->SetBrightness(1.7);
-    light->SetColor(Urho3D::Color(0.5, .5, 1.0, 1));
-    light->SetCastShadows(true);
+    auto light = entities.create();
+    light.assign<Renderable>();
+    light.assign<Position>(-10, 2, 5);
+    auto l = Light{};
+    l.type = Urho3D::LIGHT_POINT;
+    l.range = 25;
+    l.brightness = 1.7;
+    l.color = Urho3D::Color(0.5, .5, 1.0, 1);
+    l.castShadows = true;
+    light.assign_from_copy(l);
   }
   // add a green spot light to the camera node
   {

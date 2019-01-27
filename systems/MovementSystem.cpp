@@ -36,7 +36,7 @@ void MovementSystem::update(entityx::EntityManager &es,
                                            AngularVelocity &velocity) {
     Urho3D::Quaternion deltaRotation = Urho3D::Quaternion(
         velocity.value.x_ * dt, velocity.value.y_ * dt, velocity.value.z_ * dt);
-    direction.value = (direction.value * deltaRotation).Normalized();
+    direction.Rotate(deltaRotation);
   });
 
   es.each<Position, Direction, Velocity>(

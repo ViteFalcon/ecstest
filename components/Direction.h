@@ -27,6 +27,16 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <Urho3D/Math/Quaternion.h>
 
 struct Direction {
+  void SetDirection(const Urho3D::Vector3& direction);
+
+  void Yaw(float angle);
+
+  void Pitch(float angle);
+
+  void Roll(float angle);
+
+  void Rotate(const Urho3D::Quaternion& delta);
+
   Urho3D::Quaternion value = Urho3D::Quaternion::IDENTITY;
 };
 

@@ -35,6 +35,7 @@ set(
     SOURCE_FILES
     main.cpp
     components/AngularVelocity.h
+    components/Direction.cpp
     components/Direction.h
     components/Light.h
     components/Material.h

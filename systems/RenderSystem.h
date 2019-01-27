@@ -33,6 +33,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "../components/Material.h"
 #include "../components/Renderable.h"
 #include "../components/StaticModel.h"
+#include "../components/Light.h"
 
 class RenderSystem : public entityx::System<RenderSystem>,
                      public entityx::Receiver<RenderSystem> {
@@ -50,6 +51,9 @@ public:
 
   void receive(const entityx::ComponentAddedEvent<StaticModel> &event);
   void receive(const entityx::ComponentRemovedEvent<StaticModel> &event);
+
+  void receive(const entityx::ComponentAddedEvent<Light> &event);
+  void receive(const entityx::ComponentRemovedEvent<Light> &event);
 
   void receive(const entityx::EntityDestroyedEvent &event);
 

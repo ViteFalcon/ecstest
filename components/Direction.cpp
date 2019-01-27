@@ -16,27 +16,27 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 ------------------------------------------------------------------------------------------------------------------------
 */
 
-#ifndef NINPOTEST_LIGHT_H
-#define NINPOTEST_LIGHT_H
+#include "Direction.h"
 
-#include <Urho3D/Graphics/Light.h>
-#include <Urho3D/Math/Color.h>
+void Direction::SetDirection(const Urho3D::Vector3 &direction) {
+  value = Urho3D::Quaternion(Urho3D::Vector3::FORWARD, direction);
+}
 
-struct Light {
-  Urho3D::LightType type = Urho3D::LIGHT_POINT;
-  /// Brightness multiplier.
-  float brightness = 1.0f;
-  float range = 10.0f;
-  /// Spotlight field of view.
-  float fov = 30.0f;
-  /// Light temperature.
-  float temperature = 6590.0f;
-  /// Radius of the light source. If above 0 it will turn the light into an area light.  Works only with PBR shaders.
-  float radius = 0.0f;
-  /// Length of the light source. If above 0 and radius is above 0 it will create a tube light. Works only with PBR shaders.
-  float length = 0.0f;
-  Urho3D::Color color;
-  bool castShadows;
-};
+void Direction::Yaw(float angle) {
+  Urho3D::Quaternion delta(angle, Urho3D::Vector3::UP);
+  Rotate(delta);
+}
 
-#endif //NINPOTEST_LIGHT_H
+void Direction::Pitch(float angle) {
+  Urho3D::Quaternion delta(angle, Urho3D::Vector3::RIGHT);
+  Rotate(delta);
+}
+
+void Direction::Roll(float angle) {
+  Urho3D::Quaternion delta(angle, Urho3D::Vector3::FORWARD);
+  Rotate(delta);
+}
+
+void Direction::Rotate(const Urho3D::Quaternion &delta) {
+  value = (value * delta).Normalized();
+}
