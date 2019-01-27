@@ -34,11 +34,17 @@ include(UrhoCommon)
 set(
     SOURCE_FILES
     main.cpp
+    events/BeginFrameData.cpp
+    events/BeginFrameData.h
+    events/KeyDownData.cpp
+    events/KeyDownData.h
     events/GameEvents.h
-    state/GameState.cpp
-    state/GameState.h
+    events/UpdateEventData.cpp
+    events/UpdateEventData.h
     state/DemoState.cpp
     state/DemoState.h
+    state/GameState.cpp
+    state/GameState.h
     ui/DemoUI.cpp
     ui/DemoUI.h
     ui/GameUI.cpp

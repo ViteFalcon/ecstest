@@ -123,15 +123,14 @@ DemoState::DemoState(Urho3D::Context *context)
       new Urho3D::Viewport(context_, mScene, camera));
   renderer->SetViewport(0, viewport);
 
-  SubscribeToEvent(Urho3D::E_KEYDOWN, URHO3D_HANDLER(DemoState, HandleKeyDown));
-  SubscribeToEvent(Urho3D::E_UPDATE, URHO3D_HANDLER(DemoState, HandleUpdate));
+  SubscribeToUpdateEvents();
+  SubscribeToKeyDownEvents();
 }
 
-void DemoState::HandleKeyDown(Urho3D::StringHash eventType,
-                              Urho3D::VariantMap &eventData) {
+void DemoState::OnKeyDown(KeyDownData &data) {
   using namespace Urho3D;
   using namespace KeyDown;
-  int key = eventData[P_KEY].GetInt();
+  int key = data.GetKey();
   if (key == KEY_ESCAPE) {
     SendEvent(E_SIGNAL_TERMINATE);
   }
@@ -143,9 +142,8 @@ void DemoState::HandleKeyDown(Urho3D::StringHash eventType,
   }
 }
 
-void DemoState::HandleUpdate(Urho3D::StringHash eventType,
-                             Urho3D::VariantMap &eventData) {
-  float timeStep = eventData[Urho3D::Update::P_TIMESTEP].GetFloat();
+void DemoState::OnUpdate(UpdateEventData &data) {
+  float timeStep = data.GetTimeStep();
   // Movement speed as world units per second
   float MOVE_SPEED = 10.0f;
   // Mouse sensitivity as degrees per pixel

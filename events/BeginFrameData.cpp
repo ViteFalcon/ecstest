@@ -21,25 +21,16 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ------------------------------------------------------------------------------------------------------------------------
 */
 
-#ifndef NINPOTEST_TESTSCENE_H
-#define NINPOTEST_TESTSCENE_H
+#include "BeginFrameData.h"
 
-#include "../ui/DemoUI.h"
-#include "GameState.h"
+#include <Urho3D/Core/CoreEvents.h>
 
-class DemoState : public GameState {
-  GAME_STATE(DemoState)
-public:
-  DemoState(Urho3D::Context *context);
+BeginFrameData::BeginFrameData(Urho3D::VariantMap &data) : mData(data) {}
 
-  virtual void OnUpdate(UpdateEventData &data) override;
+unsigned int BeginFrameData::GetFrameNumber() const {
+  return mData[Urho3D::BeginFrame::P_FRAMENUMBER].GetUInt();
+}
 
-  virtual void OnKeyDown(KeyDownData &data) override;
-
-private:
-  Urho3D::SharedPtr<DemoUI> mUI;
-  Urho3D::SharedPtr<Urho3D::Node> mBoxNode;
-  Urho3D::SharedPtr<Urho3D::Node> mCameraNode;
-};
-
-#endif // NINPOTEST_TESTSCENE_H
+float BeginFrameData::GetTimeStep() const {
+  return mData[Urho3D::BeginFrame::P_TIMESTEP].GetFloat();
+}

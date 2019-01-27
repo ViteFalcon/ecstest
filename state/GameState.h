@@ -28,6 +28,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Scene/Scene.h>
 
+#include "../events/BeginFrameData.h"
+#include "../events/KeyDownData.h"
+#include "../events/UpdateEventData.h"
+
 #include "../ui/StatusOverlay.h"
 
 class GameState : public Urho3D::Object {
@@ -36,38 +40,29 @@ public:
   GameState(Urho3D::Context *context);
   virtual ~GameState() = default;
 
+protected:
   /**
    * Every frame's life must begin somewhere. Here it is.
    */
-  virtual void HandleBeginFrame(Urho3D::StringHash eventType,
-                                Urho3D::VariantMap &eventData) {}
+  virtual void OnBeginFrame(BeginFrameData &data) {}
 
   /**
    * Input from keyboard is handled here. I'm assuming that Input, if
    * available, will be handled before E_UPDATE.
    */
-  virtual void HandleKeyDown(Urho3D::StringHash eventType,
-                             Urho3D::VariantMap &eventData) {}
-
-  /**
-   * You can get these events from when ever the user interacts with the UI.
-   */
-  virtual void HandleClosePressed(Urho3D::StringHash eventType,
-                                  Urho3D::VariantMap &eventData) {}
+  virtual void OnKeyDown(KeyDownData &data) {}
 
   /**
    * Your non-rendering logic should be handled here.
    * This could be moving objects, checking collisions and reaction, etc.
    */
-  virtual void HandleUpdate(Urho3D::StringHash eventType,
-                            Urho3D::VariantMap &eventData) {}
+  virtual void OnUpdate(UpdateEventData &data) {}
 
   /**
    * Anything in the non-rendering logic that requires a second pass,
    * it might be well suited to be handled here.
    */
-  virtual void HandlePostUpdate(Urho3D::StringHash eventType,
-                                Urho3D::VariantMap &eventData) {}
+  virtual void OnPostUpdate(UpdateEventData &data) {}
 
   /**
    * If you have any details you want to change before the viewport is
@@ -75,8 +70,7 @@ public:
    * See http://urho3d.github.io/documentation/1.32/_rendering.html
    * for details on how the rendering pipeline is setup.
    */
-  virtual void HandleRenderUpdate(Urho3D::StringHash eventType,
-                                  Urho3D::VariantMap &eventData) {}
+  virtual void OnRenderUpdate(UpdateEventData &data) {}
 
   /**
    * After everything is rendered, there might still be things you wish
@@ -84,17 +78,53 @@ public:
    * only post rendering is allowed. Good for adding things like debug
    * artifacts on screen or brush up lighting, etc.
    */
-  virtual void HandlePostRenderUpdate(Urho3D::StringHash eventType,
-                                      Urho3D::VariantMap &eventData) {}
+  virtual void OnPostRenderUpdate(UpdateEventData &data) {}
 
   /**
    * All good things must come to an end.
    */
-  virtual void HandleEndFrame(Urho3D::StringHash eventType,
-                              Urho3D::VariantMap &eventData) {}
+  virtual void OnEndFrame() {}
+
+  void SubscribeToBeginFrameEvents();
+
+  void SubscribeToKeyDownEvents();
+
+  void SubscribeToUpdateEvents();
+
+  void SubscribeToPostUpdateEvents();
+
+  void SubscribeToRenderUpdateEvents();
+
+  void SubscribeToPostRenderUpdateEvents();
+
+  void SubscribeToEndFrameEvents();
+
+  void SubscribeToAllEvents();
+
+private:
+  void HandleBeginFrame(Urho3D::StringHash eventType,
+                        Urho3D::VariantMap &eventData);
+
+  void HandleKeyDown(Urho3D::StringHash eventType,
+                     Urho3D::VariantMap &eventData);
+
+  void HandleUpdate(Urho3D::StringHash eventType,
+                    Urho3D::VariantMap &eventData);
+
+  void HandlePostUpdate(Urho3D::StringHash eventType,
+                        Urho3D::VariantMap &eventData);
+
+  void HandleRenderUpdate(Urho3D::StringHash eventType,
+                          Urho3D::VariantMap &eventData);
+
+  void HandlePostRenderUpdate(Urho3D::StringHash eventType,
+                              Urho3D::VariantMap &eventData);
+
+  void HandleEndFrame(Urho3D::StringHash eventType,
+                      Urho3D::VariantMap &eventData);
 
 protected:
-  Urho3D::ResourceCache& mResourceCache;
+  Urho3D::ResourceCache &mResourceCache;
 
   Urho3D::SharedPtr<Urho3D::Scene> mScene;
 };

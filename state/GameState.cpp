@@ -23,7 +23,94 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "GameState.h"
 
+#include <Urho3D/Core/CoreEvents.h>
+#include <Urho3D/Input/InputEvents.h>
+
 GameState::GameState(Urho3D::Context *context)
     : Urho3D::Object(context),
       mResourceCache(*GetSubsystem<Urho3D::ResourceCache>()),
       mScene(new Urho3D::Scene(context)) {}
+
+void GameState::SubscribeToBeginFrameEvents() {
+  SubscribeToEvent(Urho3D::E_BEGINFRAME,
+                   URHO3D_HANDLER(GameState, HandleBeginFrame));
+}
+
+void GameState::SubscribeToKeyDownEvents() {
+  SubscribeToEvent(Urho3D::E_KEYDOWN, URHO3D_HANDLER(GameState, HandleKeyDown));
+}
+
+void GameState::SubscribeToUpdateEvents() {
+  SubscribeToEvent(Urho3D::E_UPDATE, URHO3D_HANDLER(GameState, HandleUpdate));
+}
+
+void GameState::SubscribeToPostUpdateEvents() {
+  SubscribeToEvent(Urho3D::E_POSTUPDATE,
+                   URHO3D_HANDLER(GameState, HandlePostUpdate));
+}
+
+void GameState::SubscribeToRenderUpdateEvents() {
+  SubscribeToEvent(Urho3D::E_RENDERUPDATE,
+                   URHO3D_HANDLER(GameState, HandleRenderUpdate));
+}
+
+void GameState::SubscribeToPostRenderUpdateEvents() {
+  SubscribeToEvent(Urho3D::E_POSTRENDERUPDATE,
+                   URHO3D_HANDLER(GameState, HandlePostRenderUpdate));
+}
+
+void GameState::SubscribeToEndFrameEvents() {
+  SubscribeToEvent(Urho3D::E_ENDFRAME,
+                   URHO3D_HANDLER(GameState, HandleEndFrame));
+}
+
+void GameState::SubscribeToAllEvents() {
+  SubscribeToBeginFrameEvents();
+  SubscribeToKeyDownEvents();
+  SubscribeToUpdateEvents();
+  SubscribeToPostUpdateEvents();
+  SubscribeToRenderUpdateEvents();
+  SubscribeToPostRenderUpdateEvents();
+  SubscribeToEndFrameEvents();
+}
+
+void GameState::HandleBeginFrame(Urho3D::StringHash eventType,
+                                 Urho3D::VariantMap &eventData) {
+  BeginFrameData data{eventData};
+  OnBeginFrame(data);
+}
+
+void GameState::HandleKeyDown(Urho3D::StringHash eventType,
+                              Urho3D::VariantMap &eventData) {
+  KeyDownData data{eventData};
+  OnKeyDown(data);
+}
+
+void GameState::HandleUpdate(Urho3D::StringHash eventType,
+                             Urho3D::VariantMap &eventData) {
+  UpdateEventData data{eventData};
+  OnUpdate(data);
+}
+
+void GameState::HandlePostUpdate(Urho3D::StringHash eventType,
+                                 Urho3D::VariantMap &eventData) {
+  UpdateEventData data{eventData};
+  OnPostUpdate(data);
+}
+
+void GameState::HandleRenderUpdate(Urho3D::StringHash eventType,
+                                   Urho3D::VariantMap &eventData) {
+  UpdateEventData data{eventData};
+  OnRenderUpdate(data);
+}
+
+void GameState::HandlePostRenderUpdate(Urho3D::StringHash eventType,
+                                       Urho3D::VariantMap &eventData) {
+  UpdateEventData data{eventData};
+  OnPostRenderUpdate(data);
+}
+
+void GameState::HandleEndFrame(Urho3D::StringHash eventType,
+                               Urho3D::VariantMap &eventData) {
+  OnEndFrame();
+}
