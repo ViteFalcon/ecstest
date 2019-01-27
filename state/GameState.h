@@ -24,6 +24,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef NINPOTEST_GAMESCENE_H
 #define NINPOTEST_GAMESCENE_H
 
+#include <entityx/entityx.h>
+
 #include <Urho3D/Core/Object.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Scene/Scene.h>
@@ -34,7 +36,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "../ui/StatusOverlay.h"
 
-class GameState : public Urho3D::Object {
+class GameState : public Urho3D::Object, public entityx::EntityX {
   URHO3D_OBJECT(GameState, Urho3D::Object)
 public:
   GameState(Urho3D::Context *context);

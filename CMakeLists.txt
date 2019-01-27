@@ -34,6 +34,15 @@ include(UrhoCommon)
 set(
     SOURCE_FILES
     main.cpp
+    components/AngularVelocity.h
+    components/Direction.h
+    components/Light.h
+    components/Material.h
+    components/Position.h
+    components/Renderable.h
+    components/Scale.h
+    components/StaticModel.h
+    components/Velocity.h
     events/BeginFrameData.cpp
     events/BeginFrameData.h
     events/KeyDownData.cpp
@@ -45,6 +54,10 @@ set(
     state/DemoState.h
     state/GameState.cpp
     state/GameState.h
+    systems/MovementSystem.cpp
+    systems/MovementSystem.h
+    systems/RenderSystem.cpp
+    systems/RenderSystem.h
     ui/DemoUI.cpp
     ui/DemoUI.h
     ui/GameUI.cpp
@@ -55,4 +68,7 @@ set(
 # Setup target with resource copying
 setup_main_executable(SOURCE_FILES ${SOURCE_FILES})
 
-target_include_directories(${TARGET_NAME} PUBLIC ${URHO3D_HOME}/include)
+find_package(EntityX REQUIRED)
+
+target_include_directories(${TARGET_NAME} PUBLIC ${URHO3D_HOME}/include ${ENTITYX_INCLUDE_DIR})
+target_link_libraries(${TARGET_NAME} ${ENTITYX_LIBRARY})

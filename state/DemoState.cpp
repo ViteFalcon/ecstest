@@ -22,7 +22,17 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "DemoState.h"
+
+#include "../components/Position.h"
+#include "../components/Direction.h"
+#include "../components/AngularVelocity.h"
+#include "../components/Scale.h"
+#include "../components/Renderable.h"
+
 #include "../events/GameEvents.h"
+
+#include "../systems/MovementSystem.h"
+#include "../systems/RenderSystem.h"
 
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Graphics/Camera.h>
@@ -39,6 +49,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 DemoState::DemoState(Urho3D::Context *context)
     : GameState(context), mUI(new DemoUI(context)) {
+  systems.add<MovementSystem>();
+  systems.add<RenderSystem>(context, mScene);
+  systems.configure();
+
   mScene->CreateComponent<Urho3D::Octree>();
   mScene->CreateComponent<Urho3D::DebugRenderer>();
 
@@ -53,28 +67,27 @@ DemoState::DemoState(Urho3D::Context *context)
       mResourceCache.GetResource<Urho3D::Material>("Materials/Skybox.xml"));
 
   // Let's put a box in there.
-  mBoxNode = mScene->CreateChild("Box");
-  mBoxNode->SetPosition(Urho3D::Vector3(0, 2, 15));
-  mBoxNode->SetScale(Urho3D::Vector3(3, 3, 3));
-  auto boxObject = mBoxNode->CreateComponent<Urho3D::StaticModel>();
-  boxObject->SetModel(
-      mResourceCache.GetResource<Urho3D::Model>("Models/Box.mdl"));
-  boxObject->SetMaterial(
-      mResourceCache.GetResource<Urho3D::Material>("Materials/Stone.xml"));
-  boxObject->SetCastShadows(true);
+  auto box = entities.create();
+  box.assign<Renderable>("Box");
+  box.assign<StaticModel>("Models/Box.mdl", "Materials/Stone.xml");
+  box.assign<Position>(0, 2, 15);
+  box.assign<Direction>();
+  box.assign<Scale>(3, 3, 3);
+  // Rotate the box thingy.
+  // A much nicer way of doing this would be with a LogicComponent.
+  // With LogicComponents it is easy to control things like movement
+  // and animation from some IDE, console or just in game.
+  // Alas, it is out of the scope for our simple example.
+  box.assign<AngularVelocity>(10, 20, 0);
 
   // Create 400 boxes in a grid.
   for (int x = -30; x < 30; x += 3)
     for (int z = 0; z < 60; z += 3) {
-      Urho3D::Node *boxNode_ = mScene->CreateChild("Box");
-      boxNode_->SetPosition(Urho3D::Vector3(x, -3, z));
-      boxNode_->SetScale(Urho3D::Vector3(2, 2, 2));
-      auto boxObject = boxNode_->CreateComponent<Urho3D::StaticModel>();
-      boxObject->SetModel(
-          mResourceCache.GetResource<Urho3D::Model>("Models/Box.mdl"));
-      boxObject->SetMaterial(
-          mResourceCache.GetResource<Urho3D::Material>("Materials/Stone.xml"));
-      boxObject->SetCastShadows(true);
+      auto box = entities.create();
+      box.assign<Renderable>("Box");
+      box.assign<Position>(x, -3, z);
+      box.assign<Scale>(2, 2, 2);
+      box.assign<StaticModel>("Models/Box.mdl", "Materials/Stone.xml");
     }
 
   // We need a camera from which the viewport can render.
@@ -144,17 +157,14 @@ void DemoState::OnKeyDown(KeyDownData &data) {
 
 void DemoState::OnUpdate(UpdateEventData &data) {
   float timeStep = data.GetTimeStep();
+
+  systems.update<MovementSystem>(timeStep);
+  systems.update<RenderSystem>(timeStep);
+
   // Movement speed as world units per second
   float MOVE_SPEED = 10.0f;
   // Mouse sensitivity as degrees per pixel
   const float MOUSE_SENSITIVITY = 0.1f;
-
-  // Rotate the box thingy.
-  // A much nicer way of doing this would be with a LogicComponent.
-  // With LogicComponents it is easy to control things like movement
-  // and animation from some IDE, console or just in game.
-  // Alas, it is out of the scope for our simple example.
-  mBoxNode->Rotate(Urho3D::Quaternion(8 * timeStep, 16 * timeStep, 0));
 
   auto input = GetSubsystem<Urho3D::Input>();
   if (input->GetKeyDown(Urho3D::KEY_SHIFT))
