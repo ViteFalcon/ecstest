@@ -34,16 +34,23 @@ include(UrhoCommon)
 set(
     SOURCE_FILES
     main.cpp
+    common/None.cpp
+    common/None.h
+    common/Optional.h
+    common/Storage.h
     components/AngularVelocity.h
+    components/Camera.h
     components/Direction.cpp
     components/Direction.h
     components/Light.h
     components/Material.h
+    components/Name.h
     components/Position.h
     components/Renderable.h
     components/Scale.h
     components/StaticModel.h
     components/Velocity.h
+    components/Viewport.h
     events/BeginFrameData.cpp
     events/BeginFrameData.h
     events/KeyDownData.cpp
@@ -55,6 +62,16 @@ set(
     state/DemoState.h
     state/GameState.cpp
     state/GameState.h
+    systems/providers/scene/CameraInstances.cpp
+    systems/providers/scene/CameraInstances.h
+    systems/providers/scene/LightInstances.cpp
+    systems/providers/scene/LightInstances.h
+    systems/providers/scene/NodeComponentInstances.h
+    systems/providers/scene/NodeInstances.cpp
+    systems/providers/scene/NodeInstances.h
+    systems/providers/scene/SceneInstances.h
+    systems/providers/scene/StaticModelInstances.cpp
+    systems/providers/scene/StaticModelInstances.h
     systems/MovementSystem.cpp
     systems/MovementSystem.h
     systems/RenderSystem.cpp

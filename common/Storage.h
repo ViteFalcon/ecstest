@@ -21,26 +21,47 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ------------------------------------------------------------------------------------------------------------------------
 */
 
-#include "MovementSystem.h"
+#ifndef NINPOTEST_STORAGE_H
+#define NINPOTEST_STORAGE_H
 
-#include "../components/AngularVelocity.h"
-#include "../components/Direction.h"
-#include "../components/Position.h"
-#include "../components/Velocity.h"
+#include <cstring>
+#include <utility>
 
-void MovementSystem::update(entityx::EntityManager &es,
-                            entityx::EventManager &events,
-                            entityx::TimeDelta dt) {
-  es.each<Direction, AngularVelocity>([dt](entityx::Entity entity,
-                                           Direction &direction,
-                                           AngularVelocity &velocity) {
-    Urho3D::Quaternion deltaRotation = Urho3D::Quaternion(
-        velocity.value.x_ * dt, velocity.value.y_ * dt, velocity.value.z_ * dt);
-    direction.Rotate(deltaRotation);
-  });
+namespace internal {
+template <typename T, size_t Size = sizeof(T)> class Storage {
+public:
+  Storage() = default;
+  Storage(const Storage &) = default;
+  Storage(Storage &&) noexcept = default;
 
-  es.each<Position, Velocity>(
-      [dt](entityx::Entity entity, Position &position, Velocity &velocity) {
-        position.value += velocity.value * dt;
-      });
-}
+  void assign(const T &value) { ::new (&mData[0]) T(value); }
+
+  void assign(T &&value) { ::new (&mData[0]) T(std::move(value)); }
+
+  template <typename... Args> void emplace(Args... args) {
+    ::new (&mData[0]) T(std::move(args)...);
+  }
+
+  Storage &operator=(const Storage &other) {
+    std::memcpy(mData, other.mData, sizeof(T));
+    return *this;
+  }
+
+  constexpr size_t size() const { return Size; }
+
+  T *ptr() { return static_cast<T *>((void *)mData); }
+
+  const T *ptr() const { return static_cast<const T *>((const void *)mData); }
+
+  T &ref() { return *ptr(); }
+
+  const T &ref() const { return *ptr(); }
+
+  void destroy() { ref().T::~T(); }
+
+private:
+  char mData[Size];
+};
+} // namespace internal
+
+#endif // NINPOTEST_STORAGE_H

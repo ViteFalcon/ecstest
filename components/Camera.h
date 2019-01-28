@@ -16,26 +16,32 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 ------------------------------------------------------------------------------------------------------------------------
 */
 
-#include "DemoUI.h"
-#include "../events/GameEvents.h"
+#ifndef NINPOTEST_CAMERA_H
+#define NINPOTEST_CAMERA_H
 
-#include <Urho3D/UI/Button.h>
-#include <Urho3D/UI/UIEvents.h>
+#include <Urho3D/Math/Vector2.h>
+#include <Urho3D/Math/MathDefs.h>
+#include <Urho3D/Math/Plane.h>
+#include <Urho3D/Graphics/GraphicsDefs.h>
+#include <Urho3D/Graphics/Camera.h>
 
-DemoUI::DemoUI(Urho3D::Context *context):GameUI(context) {
-  // Add a button, just as an interactive UI sample.
-  Urho3D::Button* button=new Urho3D::Button(context_);
-  button->SetName("Button Quit");
-  button->SetStyle("Button");
-  button->SetSize(70,50);
-  button->SetPosition(16,116);
+struct Camera {
+  float nearClip = Urho3D::DEFAULT_NEARCLIP;
+  float farClip = Urho3D::DEFAULT_FARCLIP;
+  float fov = Urho3D::DEFAULT_CAMERA_FOV;
+  float orthoSize = Urho3D::DEFAULT_ORTHOSIZE;
+  float aspectRatio = 1.0f;
+  Urho3D::FillMode fillMode = Urho3D::FILL_SOLID;
+  float zoom = 1.0f;
+  float lodBias = 1.0f;
+  unsigned int viewMask = Urho3D::M_MAX_UNSIGNED;
+  unsigned int viewOverrideFlags = Urho3D::VO_NONE;
+  bool isOrthographic = false;
+  bool isAutoAspectRatio = true;
+  Urho3D::Vector2 projectionOffset = Urho3D::Vector2::ZERO;
+  bool useReflection = false;
+  Urho3D::Plane clipPane = Urho3D::Plane::UP;
+  bool flipVertical = false;
+};
 
-  // Subscribe to button release (following a 'press') events
-  SubscribeToEvent(button,Urho3D::E_RELEASED,URHO3D_HANDLER(DemoUI,HandleQuitEvent));
-
-  addElement(button);
-}
-
-void DemoUI::HandleQuitEvent(Urho3D::StringHash eventType, Urho3D::VariantMap &eventData) {
-  SendEvent(E_SIGNAL_TERMINATE);
-}
+#endif //NINPOTEST_CAMERA_H

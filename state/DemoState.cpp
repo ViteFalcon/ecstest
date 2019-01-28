@@ -23,17 +23,19 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "DemoState.h"
 
-#include "../components/Position.h"
-#include "../components/Direction.h"
 #include "../components/AngularVelocity.h"
-#include "../components/Scale.h"
+#include "../components/Direction.h"
+#include "../components/Position.h"
 #include "../components/Renderable.h"
+#include "../components/Scale.h"
+#include "../components/Name.h"
 
 #include "../events/GameEvents.h"
 
+#include "../components/Light.h"
+#include "../components/Velocity.h"
 #include "../systems/MovementSystem.h"
 #include "../systems/RenderSystem.h"
-#include "../components/Light.h"
 
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Graphics/Camera.h>
@@ -69,6 +71,7 @@ DemoState::DemoState(Urho3D::Context *context)
 
   // Let's put a box in there.
   auto box = entities.create();
+  box.assign<Name>("Box");
   box.assign<Renderable>("Box");
   box.assign<StaticModel>("Models/Box.mdl", "Materials/Stone.xml");
   box.assign<Position>(0, 2, 15);
@@ -82,7 +85,7 @@ DemoState::DemoState(Urho3D::Context *context)
   box.assign<AngularVelocity>(10, 20, 0);
 
   // Create 400 boxes in a grid.
-  for (int x = -30; x < 30; x += 3)
+  for (int x = -30; x < 30; x += 3) {
     for (int z = 0; z < 60; z += 3) {
       auto box = entities.create();
       box.assign<Renderable>("Box");
@@ -90,15 +93,21 @@ DemoState::DemoState(Urho3D::Context *context)
       box.assign<Scale>(2, 2, 2);
       box.assign<StaticModel>("Models/Box.mdl", "Materials/Stone.xml");
     }
+  }
 
   // We need a camera from which the viewport can render.
-  mCameraNode = mScene->CreateChild("Camera");
-  auto camera = mCameraNode->CreateComponent<Urho3D::Camera>();
-  camera->SetFarClip(2000);
+  mCamera = entities.create();
+  mCamera.assign<Renderable>();
+  mCamera.assign<Name>("Camera");
+  mCamera.assign<Camera>()->farClip = 2000.0f;
+  mCamera.assign<Position>();
+  mCamera.assign<Velocity>();
+  mCamera.assign<Direction>();
 
   // Create a red directional light (sun)
   {
     auto light = entities.create();
+    light.assign<Name>("RedDirectionalLight");
     light.assign<Renderable>();
     auto direction = light.assign<Direction>();
     direction->SetDirection(Urho3D::Vector3::FORWARD);
@@ -114,6 +123,7 @@ DemoState::DemoState(Urho3D::Context *context)
   // Create a blue point light
   {
     auto light = entities.create();
+    light.assign<Name>("BluePointLight");
     light.assign<Renderable>();
     light.assign<Position>(-10, 2, 5);
     auto l = Light{};
@@ -126,21 +136,18 @@ DemoState::DemoState(Urho3D::Context *context)
   }
   // add a green spot light to the camera node
   {
-    auto node_light = mCameraNode->CreateChild();
-    auto light = node_light->CreateComponent<Urho3D::Light>();
-    node_light->Pitch(15); // point slightly downwards
-    light->SetLightType(Urho3D::LIGHT_SPOT);
-    light->SetRange(20);
-    light->SetColor(Urho3D::Color(.6, 1, .6, 1.0));
-    light->SetBrightness(2.8);
-    light->SetFov(25);
+    auto light = entities.create();
+    light.assign<Name>("GreenSpotLight");
+    light.assign<Renderable>()->parentEntityId = mCamera.id();
+    light.assign<Direction>()->Pitch(15); // point slightly downwards
+    auto l = Light{};
+    l.type = Urho3D::LIGHT_SPOT;
+    l.range = 20;
+    l.color = Urho3D::Color(.6, 1, .6, 1.0);
+    l.brightness = 2.8;
+    l.fov = 25;
+    light.assign_from_copy(l);
   }
-
-  // Now we setup the viewport. Of course, you can have more than one!
-  auto renderer = GetSubsystem<Urho3D::Renderer>();
-  Urho3D::SharedPtr<Urho3D::Viewport> viewport(
-      new Urho3D::Viewport(context_, mScene, camera));
-  renderer->SetViewport(0, viewport);
 
   SubscribeToUpdateEvents();
   SubscribeToKeyDownEvents();
@@ -162,11 +169,6 @@ void DemoState::OnKeyDown(KeyDownData &data) {
 }
 
 void DemoState::OnUpdate(UpdateEventData &data) {
-  float timeStep = data.GetTimeStep();
-
-  systems.update<MovementSystem>(timeStep);
-  systems.update<RenderSystem>(timeStep);
-
   // Movement speed as world units per second
   float MOVE_SPEED = 10.0f;
   // Mouse sensitivity as degrees per pixel
@@ -175,18 +177,21 @@ void DemoState::OnUpdate(UpdateEventData &data) {
   auto input = GetSubsystem<Urho3D::Input>();
   if (input->GetKeyDown(Urho3D::KEY_SHIFT))
     MOVE_SPEED *= 10;
+
+  Urho3D::Vector3 direction = Urho3D::Vector3::ZERO;
   if (input->GetKeyDown(Urho3D::KEY_W)) {
-    mCameraNode->Translate(Urho3D::Vector3(0, 0, 1) * MOVE_SPEED * timeStep);
+    direction += Urho3D::Vector3::FORWARD;
   }
   if (input->GetKeyDown(Urho3D::KEY_S)) {
-    mCameraNode->Translate(Urho3D::Vector3(0, 0, -1) * MOVE_SPEED * timeStep);
+    direction += Urho3D::Vector3::BACK;
   }
   if (input->GetKeyDown(Urho3D::KEY_A)) {
-    mCameraNode->Translate(Urho3D::Vector3(-1, 0, 0) * MOVE_SPEED * timeStep);
+    direction += Urho3D::Vector3::LEFT;
   }
   if (input->GetKeyDown(Urho3D::KEY_D)) {
-    mCameraNode->Translate(Urho3D::Vector3(1, 0, 0) * MOVE_SPEED * timeStep);
+    direction += Urho3D::Vector3::RIGHT;
   }
+  mCamera.component<Velocity>()->value = direction * MOVE_SPEED;
 
   if (!GetSubsystem<Urho3D::Input>()->IsMouseVisible()) {
     // Use this frame's mouse motion to adjust camera node yaw and pitch. Clamp
@@ -198,8 +203,14 @@ void DemoState::OnUpdate(UpdateEventData &data) {
     pitch_ += MOUSE_SENSITIVITY * mouseMove.y_;
     pitch_ = Urho3D::Clamp(pitch_, -90.0f, 90.0f);
     // Reset rotation and set yaw and pitch again
-    mCameraNode->SetDirection(Urho3D::Vector3::FORWARD);
-    mCameraNode->Yaw(yaw_);
-    mCameraNode->Pitch(pitch_);
+    auto direction = mCamera.component<Direction>();
+    direction->SetDirection(Urho3D::Vector3::FORWARD);
+    direction->Yaw(yaw_);
+    direction->Pitch(pitch_);
   }
+
+  float timeStep = data.GetTimeStep();
+
+  systems.update<MovementSystem>(timeStep);
+  systems.update<RenderSystem>(timeStep);
 }

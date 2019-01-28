@@ -21,26 +21,27 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ------------------------------------------------------------------------------------------------------------------------
 */
 
-#include "MovementSystem.h"
+#ifndef NINPOTEST_LIGHTINSTANCES_H
+#define NINPOTEST_LIGHTINSTANCES_H
 
-#include "../components/AngularVelocity.h"
-#include "../components/Direction.h"
-#include "../components/Position.h"
-#include "../components/Velocity.h"
+#include "NodeComponentInstances.h"
 
-void MovementSystem::update(entityx::EntityManager &es,
-                            entityx::EventManager &events,
-                            entityx::TimeDelta dt) {
-  es.each<Direction, AngularVelocity>([dt](entityx::Entity entity,
-                                           Direction &direction,
-                                           AngularVelocity &velocity) {
-    Urho3D::Quaternion deltaRotation = Urho3D::Quaternion(
-        velocity.value.x_ * dt, velocity.value.y_ * dt, velocity.value.z_ * dt);
-    direction.Rotate(deltaRotation);
-  });
+#include <Urho3D/Graphics/Light.h>
 
-  es.each<Position, Velocity>(
-      [dt](entityx::Entity entity, Position &position, Velocity &velocity) {
-        position.value += velocity.value * dt;
-      });
-}
+#include "../../../components/Light.h"
+
+class LightInstances : public NodeComponentInstances<Light, Urho3D::Light> {
+public:
+  LightInstances(Urho3D::Scene &scene, NodeInstances &nodes);
+
+private:
+  Urho3D::SharedPtr<Urho3D::Light>
+  CreateNodeComponent(entityx::Entity entity, Urho3D::Node &node,
+                      const Light &component,
+                      entityx::EntityManager &entities) override;
+
+  void SyncFromData(entityx::Entity entity, Urho3D::Light &instance,
+                    const Light &data) override;
+};
+
+#endif // NINPOTEST_LIGHTINSTANCES_H

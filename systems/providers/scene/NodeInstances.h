@@ -21,26 +21,28 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ------------------------------------------------------------------------------------------------------------------------
 */
 
-#include "MovementSystem.h"
+#ifndef NINPOTEST_NODEPROVIDER_H
+#define NINPOTEST_NODEPROVIDER_H
 
-#include "../components/AngularVelocity.h"
-#include "../components/Direction.h"
-#include "../components/Position.h"
-#include "../components/Velocity.h"
+#include "SceneInstances.h"
 
-void MovementSystem::update(entityx::EntityManager &es,
-                            entityx::EventManager &events,
-                            entityx::TimeDelta dt) {
-  es.each<Direction, AngularVelocity>([dt](entityx::Entity entity,
-                                           Direction &direction,
-                                           AngularVelocity &velocity) {
-    Urho3D::Quaternion deltaRotation = Urho3D::Quaternion(
-        velocity.value.x_ * dt, velocity.value.y_ * dt, velocity.value.z_ * dt);
-    direction.Rotate(deltaRotation);
-  });
+#include <Urho3D/Scene/Node.h>
 
-  es.each<Position, Velocity>(
-      [dt](entityx::Entity entity, Position &position, Velocity &velocity) {
-        position.value += velocity.value * dt;
-      });
-}
+#include "../../../components/Renderable.h"
+
+class NodeInstances : public SceneInstances<Renderable, Urho3D::Node> {
+public:
+  explicit NodeInstances(Urho3D::Scene &scene);
+
+private:
+  Urho3D::SharedPtr<Urho3D::Node>
+  Create(entityx::Entity entity, const Renderable &component,
+         entityx::EntityManager &entities) override;
+
+  void SyncFromData(entityx::Entity entity, Urho3D::Node &instance,
+                    const Renderable &data) override;
+
+  void DestroyInstance(Urho3D::Node &instance) override;
+};
+
+#endif // NINPOTEST_NODEPROVIDER_H

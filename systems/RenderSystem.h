@@ -27,13 +27,20 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <entityx/System.h>
 
 #include <Urho3D/Container/HashMap.h>
+#include <Urho3D/Graphics/Renderer.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Scene/Scene.h>
 
+#include "../components/Camera.h"
+#include "../components/Light.h"
 #include "../components/Material.h"
 #include "../components/Renderable.h"
 #include "../components/StaticModel.h"
-#include "../components/Light.h"
+
+#include "providers/scene/CameraInstances.h"
+#include "providers/scene/LightInstances.h"
+#include "providers/scene/NodeInstances.h"
+#include "providers/scene/StaticModelInstances.h"
 
 class RenderSystem : public entityx::System<RenderSystem>,
                      public entityx::Receiver<RenderSystem> {
@@ -46,25 +53,24 @@ public:
   void update(entityx::EntityManager &entities, entityx::EventManager &events,
               entityx::TimeDelta dt) override;
 
-  void receive(const entityx::ComponentAddedEvent<Renderable> &event);
   void receive(const entityx::ComponentRemovedEvent<Renderable> &event);
 
-  void receive(const entityx::ComponentAddedEvent<StaticModel> &event);
   void receive(const entityx::ComponentRemovedEvent<StaticModel> &event);
 
-  void receive(const entityx::ComponentAddedEvent<Light> &event);
   void receive(const entityx::ComponentRemovedEvent<Light> &event);
+
+  void receive(const entityx::ComponentRemovedEvent<Camera> &event);
 
   void receive(const entityx::EntityDestroyedEvent &event);
 
 private:
-  Urho3D::Node *CreateEntityNode(const entityx::Entity &entity,
-                                 const Renderable &renderable);
-  Urho3D::Node *GetEntityNode(const entityx::Entity &entity);
-
-  Urho3D::SharedPtr<Urho3D::Scene> mScene;
+  Urho3D::Renderer &mRenderer;
   Urho3D::ResourceCache &mResources;
-  Urho3D::HashMap<uint64_t, Urho3D::SharedPtr<Urho3D::Node>> mNodes;
+  Urho3D::SharedPtr<Urho3D::Scene> mScene;
+  NodeInstances mNodes;
+  LightInstances mLights;
+  StaticModelInstances mStaticModels;
+  CameraInstances mCameras;
 };
 
 #endif // NINPOTEST_RENDERSYSTEM_H

@@ -31,6 +31,8 @@ struct Position {
   Position(const Urho3D::Vector3 &value) : value(value) {}
   Position(float x, float y, float z) : value(x, y, z) {}
 
+
+
   Urho3D::Vector3 value;
 };
 

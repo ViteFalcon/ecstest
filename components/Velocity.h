@@ -20,7 +20,7 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 #define NINPOTEST_VELOCITY_H
 
 struct Velocity {
-  float value = 0.0f;
+  Urho3D::Vector3 value = Urho3D::Vector3::ZERO;
 };
 
 #endif //NINPOTEST_VELOCITY_H
