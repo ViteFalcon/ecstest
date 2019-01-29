@@ -163,9 +163,12 @@ protected:
     return entity;
   }
 
+  void SetBackgroundMusic(const Urho3D::String &filePath);
+
 protected:
   Urho3D::ResourceCache &mResourceCache;
   Urho3D::SharedPtr<Urho3D::Scene> mScene;
+  entityx::Entity mBackgroundMusic;
 };
 
 #define GAME_STATE(ClassName) URHO3D_OBJECT(ClassName, GameState)

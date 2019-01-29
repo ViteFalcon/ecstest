@@ -39,6 +39,7 @@ set(
     common/Optional.h
     common/Storage.h
     components/AngularVelocity.h
+    components/BackgroundMusic.h
     components/Camera.h
     components/Direction.cpp
     components/Direction.h
@@ -48,6 +49,7 @@ set(
     components/Position.h
     components/Renderable.h
     components/Scale.h
+    components/SoundListener.h
     components/StaticModel.h
     components/Velocity.h
     components/Viewport.h
@@ -62,6 +64,8 @@ set(
     state/DemoState.h
     state/GameState.cpp
     state/GameState.h
+    systems/providers/scene/BackgroundMusicInstances.cpp
+    systems/providers/scene/BackgroundMusicInstances.h
     systems/providers/scene/CameraInstances.cpp
     systems/providers/scene/CameraInstances.h
     systems/providers/scene/LightInstances.cpp
@@ -70,12 +74,14 @@ set(
     systems/providers/scene/NodeInstances.cpp
     systems/providers/scene/NodeInstances.h
     systems/providers/scene/SceneInstances.h
+    systems/providers/scene/SoundListenerInstances.cpp
+    systems/providers/scene/SoundListenerInstances.h
     systems/providers/scene/StaticModelInstances.cpp
     systems/providers/scene/StaticModelInstances.h
     systems/MovementSystem.cpp
     systems/MovementSystem.h
-    systems/RenderSystem.cpp
-    systems/RenderSystem.h
+    systems/UrhoSystem.cpp
+    systems/UrhoSystem.h
     ui/DemoUI.cpp
     ui/DemoUI.h
     ui/GameUI.cpp

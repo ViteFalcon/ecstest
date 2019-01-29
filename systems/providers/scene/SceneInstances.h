@@ -39,13 +39,23 @@ template <typename ConcreteType> struct InstanceComponent {
   Urho3D::SharedPtr<ConcreteType> value;
 };
 
-template <typename ComponentType, typename ConcreteType,
+template <class DerivedType, typename ComponentType, typename ConcreteType,
           typename InstanceComponentType = InstanceComponent<ConcreteType>>
-class SceneInstances {
+class SceneInstances : public entityx::Receiver<DerivedType> {
 public:
   SceneInstances(Urho3D::Scene &scene, Urho3D::String instanceName)
       : mScene(scene), mInstanceName(instanceName) {}
   virtual ~SceneInstances() = default;
+
+  void Configure(entityx::EventManager &eventManager) {
+    eventManager.subscribe<entityx::ComponentRemovedEvent<ComponentType>>(
+        *(DerivedType *)this);
+  }
+
+  void receive(const entityx::ComponentRemovedEvent<ComponentType> &event) {
+    auto entity = event.entity;
+    Destroy(entity);
+  }
 
   virtual bool HasDependencies(entityx::Entity entity) const { return true; }
 

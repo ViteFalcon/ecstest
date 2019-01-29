@@ -40,8 +40,8 @@ struct StaticModelInstance {
 };
 
 class StaticModelInstances
-    : public NodeComponentInstances<StaticModel, Urho3D::StaticModel,
-                                    StaticModelInstance> {
+    : public NodeComponentInstances<StaticModelInstances, StaticModel,
+                                    Urho3D::StaticModel, StaticModelInstance> {
 public:
   StaticModelInstances(Urho3D::Scene &scene, NodeInstances nodes,
                        Urho3D::ResourceCache &resources);

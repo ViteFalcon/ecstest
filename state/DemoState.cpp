@@ -35,7 +35,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "../components/Light.h"
 #include "../components/Velocity.h"
 #include "../systems/MovementSystem.h"
-#include "../systems/RenderSystem.h"
+#include "../systems/UrhoSystem.h"
 
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Graphics/Camera.h>
@@ -53,7 +53,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 DemoState::DemoState(Urho3D::Context *context)
     : GameState(context), mUI(new DemoUI(context)) {
   systems.add<MovementSystem>();
-  systems.add<RenderSystem>(context, mScene);
+  systems.add<UrhoSystem>(context, mScene);
   systems.configure();
 
   mScene->CreateComponent<Urho3D::Octree>();
@@ -137,6 +137,7 @@ DemoState::DemoState(Urho3D::Context *context)
     l.fov = 25;
     light.assign_from_copy(l);
   }
+  SetBackgroundMusic("Music/Ninja Gods.ogg");
 
   SubscribeToUpdateEvents();
   SubscribeToKeyDownEvents();
@@ -203,5 +204,5 @@ void DemoState::OnUpdate(UpdateEventData &data) {
   float timeStep = data.GetTimeStep();
 
   systems.update<MovementSystem>(timeStep);
-  systems.update<RenderSystem>(timeStep);
+  systems.update<UrhoSystem>(timeStep);
 }

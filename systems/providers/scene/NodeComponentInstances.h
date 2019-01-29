@@ -26,16 +26,16 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "NodeInstances.h"
 
-template <typename ComponentType, typename ConcreteType,
+template <class DerivedType, typename ComponentType, typename ConcreteType,
           typename InstanceComponentType = InstanceComponent<ConcreteType>>
 class NodeComponentInstances
-    : public SceneInstances<ComponentType, ConcreteType,
+    : public SceneInstances<DerivedType, ComponentType, ConcreteType,
                             InstanceComponentType> {
 public:
   NodeComponentInstances(Urho3D::Scene &scene, NodeInstances &nodes,
                          Urho3D::String name)
-      : SceneInstances<ComponentType, ConcreteType, InstanceComponentType>(
-            scene, name),
+      : SceneInstances<DerivedType, ComponentType, ConcreteType,
+                       InstanceComponentType>(scene, name),
         mNodes(nodes) {}
 
   virtual bool HasDependencies(entityx::Entity entity) const override {

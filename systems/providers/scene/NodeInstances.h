@@ -30,7 +30,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "../../../components/Renderable.h"
 
-class NodeInstances : public SceneInstances<Renderable, Urho3D::Node> {
+class NodeInstances
+    : public SceneInstances<NodeInstances, Renderable, Urho3D::Node> {
 public:
   explicit NodeInstances(Urho3D::Scene &scene);
 

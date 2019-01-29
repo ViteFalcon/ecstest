@@ -22,6 +22,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include "GameState.h"
+#include "../components/BackgroundMusic.h"
 
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Input/InputEvents.h>
@@ -29,7 +30,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 GameState::GameState(Urho3D::Context *context)
     : Urho3D::Object(context),
       mResourceCache(*GetSubsystem<Urho3D::ResourceCache>()),
-      mScene(new Urho3D::Scene(context)) {}
+      mScene(new Urho3D::Scene(context)),
+      mBackgroundMusic(CreateRenderableEntity("BackgroundMusic")) {}
 
 void GameState::SubscribeToBeginFrameEvents() {
   SubscribeToEvent(Urho3D::E_BEGINFRAME,
@@ -113,4 +115,13 @@ void GameState::HandlePostRenderUpdate(Urho3D::StringHash eventType,
 void GameState::HandleEndFrame(Urho3D::StringHash eventType,
                                Urho3D::VariantMap &eventData) {
   OnEndFrame();
+}
+
+void GameState::SetBackgroundMusic(const Urho3D::String &filePath) {
+  auto bgm = mBackgroundMusic.component<BackgroundMusic>();
+  if (bgm) {
+    bgm->value = filePath;
+  } else {
+    mBackgroundMusic.assign<BackgroundMusic>(filePath);
+  }
 }

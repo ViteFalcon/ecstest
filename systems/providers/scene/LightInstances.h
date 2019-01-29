@@ -30,7 +30,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "../../../components/Light.h"
 
-class LightInstances : public NodeComponentInstances<Light, Urho3D::Light> {
+class LightInstances
+    : public NodeComponentInstances<LightInstances, Light, Urho3D::Light> {
 public:
   LightInstances(Urho3D::Scene &scene, NodeInstances &nodes);
 

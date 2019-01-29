@@ -31,19 +31,20 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "../../../components/Camera.h"
 
-class CameraInstances : public NodeComponentInstances<Camera, Urho3D::Camera> {
+class CameraInstances
+    : public NodeComponentInstances<CameraInstances, Camera, Urho3D::Camera> {
 public:
   CameraInstances(Urho3D::Scene &scene, NodeInstances &nodes,
                   Urho3D::Context *context, Urho3D::Renderer &renderer);
 
 protected:
-  Urho3D::SharedPtr<Urho3D::Camera>
+  virtual Urho3D::SharedPtr<Urho3D::Camera>
   CreateNodeComponent(entityx::Entity entity, Urho3D::Node &node,
                       const Camera &component,
                       entityx::EntityManager &entities) override;
 
-  void SyncFromData(entityx::Entity entity, Urho3D::Camera &instance,
-                    const Camera &data) override;
+  virtual void SyncFromData(entityx::Entity entity, Urho3D::Camera &instance,
+                            const Camera &data) override;
 
 private:
   Urho3D::Context *mContext;
