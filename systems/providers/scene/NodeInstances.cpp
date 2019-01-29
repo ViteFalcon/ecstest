@@ -24,6 +24,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "NodeInstances.h"
 
 #include "../../../components/Direction.h"
+#include "../../../components/Name.h"
 #include "../../../components/Position.h"
 #include "../../../components/Scale.h"
 
@@ -33,8 +34,9 @@ NodeInstances::NodeInstances(Urho3D::Scene &scene)
 Urho3D::SharedPtr<Urho3D::Node>
 NodeInstances::Create(entityx::Entity entity, const Renderable &component,
                       entityx::EntityManager &entities) {
-  if (component.parentEntityId == entityx::Entity::INVALID) {
-    return Urho3D::SharedPtr<Urho3D::Node>(mScene.CreateChild(component.name));
+  auto name = GetAssignedName(entity);
+  if (component.IsRoot()) {
+    return Urho3D::SharedPtr<Urho3D::Node>(mScene.CreateChild(name));
   }
   auto parentEntity = entities.get(component.parentEntityId);
   if (!parentEntity) {
@@ -49,10 +51,9 @@ NodeInstances::Create(entityx::Entity entity, const Renderable &component,
                      "'%s'. Defaulting to root scene node",
                      GetName(parentEntity).CString(),
                      GetName(entity).CString());
-    return Urho3D::SharedPtr<Urho3D::Node>(mScene.CreateChild(component.name));
+    return Urho3D::SharedPtr<Urho3D::Node>(mScene.CreateChild(name));
   }
-  return Urho3D::SharedPtr<Urho3D::Node>(
-      parentNode->CreateChild(component.name));
+  return Urho3D::SharedPtr<Urho3D::Node>(parentNode->CreateChild(name));
 }
 
 void NodeInstances::SyncFromData(entityx::Entity entity, Urho3D::Node &instance,

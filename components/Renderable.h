@@ -28,19 +28,15 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 struct Renderable {
   Renderable() : parentEntityId(entityx::Entity::INVALID) {}
-  explicit Renderable(Urho3D::String name)
-      : name(name), parentEntityId(entityx::Entity::INVALID) {}
 
   explicit Renderable(entityx::Entity::Id parentEntityId)
       : parentEntityId(parentEntityId) {}
-  explicit Renderable(Urho3D::String name, entityx::Entity::Id parentEntityId)
-      : name(name), parentEntityId(parentEntityId) {}
 
-  explicit Renderable(Urho3D::String name, entityx::Entity parentEntity)
-      : name(name), parentEntityId(parentEntity.id()) {}
+  bool IsChild() const { return !IsRoot(); }
 
-  Urho3D::String name;
-  entityx::Entity::Id parentEntityId = entityx::Entity::INVALID;
+  bool IsRoot() const { return parentEntityId == entityx::Entity::INVALID; }
+
+  entityx::Entity::Id parentEntityId;
 };
 
 #endif // NINPOTEST_RENDERABLE_H

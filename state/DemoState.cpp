@@ -70,9 +70,7 @@ DemoState::DemoState(Urho3D::Context *context)
       mResourceCache.GetResource<Urho3D::Material>("Materials/Skybox.xml"));
 
   // Let's put a box in there.
-  auto box = entities.create();
-  box.assign<Name>("Box");
-  box.assign<Renderable>("Box");
+  auto box = CreateRenderableEntity("Box");
   box.assign<StaticModel>("Models/Box.mdl", "Materials/Stone.xml");
   box.assign<Position>(0, 2, 15);
   box.assign<Direction>();
@@ -87,8 +85,7 @@ DemoState::DemoState(Urho3D::Context *context)
   // Create 400 boxes in a grid.
   for (int x = -30; x < 30; x += 3) {
     for (int z = 0; z < 60; z += 3) {
-      auto box = entities.create();
-      box.assign<Renderable>("Box");
+      auto box = CreateRenderableEntity("Box");
       box.assign<Position>(x, -3, z);
       box.assign<Scale>(2, 2, 2);
       box.assign<StaticModel>("Models/Box.mdl", "Materials/Stone.xml");
@@ -96,9 +93,7 @@ DemoState::DemoState(Urho3D::Context *context)
   }
 
   // We need a camera from which the viewport can render.
-  mCamera = entities.create();
-  mCamera.assign<Renderable>();
-  mCamera.assign<Name>("Camera");
+  mCamera = CreateRenderableEntity("Camera");
   mCamera.assign<Camera>()->farClip = 2000.0f;
   mCamera.assign<Position>();
   mCamera.assign<Velocity>();
@@ -106,9 +101,7 @@ DemoState::DemoState(Urho3D::Context *context)
 
   // Create a red directional light (sun)
   {
-    auto light = entities.create();
-    light.assign<Name>("RedDirectionalLight");
-    light.assign<Renderable>();
+    auto light = CreateRenderableEntity("RedDirectionalLight");
     auto direction = light.assign<Direction>();
     direction->SetDirection(Urho3D::Vector3::FORWARD);
     direction->Yaw(50);
@@ -122,9 +115,7 @@ DemoState::DemoState(Urho3D::Context *context)
   }
   // Create a blue point light
   {
-    auto light = entities.create();
-    light.assign<Name>("BluePointLight");
-    light.assign<Renderable>();
+    auto light = CreateRenderableEntity("BluePointLight");
     light.assign<Position>(-10, 2, 5);
     auto l = Light{};
     l.type = Urho3D::LIGHT_POINT;
@@ -136,9 +127,7 @@ DemoState::DemoState(Urho3D::Context *context)
   }
   // add a green spot light to the camera node
   {
-    auto light = entities.create();
-    light.assign<Name>("GreenSpotLight");
-    light.assign<Renderable>()->parentEntityId = mCamera.id();
+    auto light = CreateRenderableEntity("GreenSpotLight", mCamera.id());
     light.assign<Direction>()->Pitch(15); // point slightly downwards
     auto l = Light{};
     l.type = Urho3D::LIGHT_SPOT;
@@ -175,8 +164,9 @@ void DemoState::OnUpdate(UpdateEventData &data) {
   const float MOUSE_SENSITIVITY = 0.1f;
 
   auto input = GetSubsystem<Urho3D::Input>();
-  if (input->GetKeyDown(Urho3D::KEY_SHIFT))
+  if (input->GetKeyDown(Urho3D::KEY_SHIFT)) {
     MOVE_SPEED *= 10;
+  }
 
   Urho3D::Vector3 direction = Urho3D::Vector3::ZERO;
   if (input->GetKeyDown(Urho3D::KEY_W)) {
@@ -191,6 +181,7 @@ void DemoState::OnUpdate(UpdateEventData &data) {
   if (input->GetKeyDown(Urho3D::KEY_D)) {
     direction += Urho3D::Vector3::RIGHT;
   }
+  direction.Normalize();
   mCamera.component<Velocity>()->value = direction * MOVE_SPEED;
 
   if (!GetSubsystem<Urho3D::Input>()->IsMouseVisible()) {

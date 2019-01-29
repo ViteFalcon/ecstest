@@ -123,6 +123,14 @@ protected:
     return mInstanceName + "[NO-NAME]";
   }
 
+  Urho3D::String GetAssignedName(entityx::Entity entity) {
+    auto name = entity.component<Name>();
+    if (name) {
+      return name->value;
+    }
+    return Urho3D::String::EMPTY;
+  }
+
   virtual InstanceComponentType
   CreateInstanceComponent(entityx::Entity entity,
                           const ComponentType &component,

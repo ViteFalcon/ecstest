@@ -34,6 +34,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "../events/KeyDownData.h"
 #include "../events/UpdateEventData.h"
 
+#include "../components/Name.h"
+#include "../components/Renderable.h"
 #include "../ui/StatusOverlay.h"
 
 class GameState : public Urho3D::Object, public entityx::EntityX {
@@ -126,8 +128,43 @@ private:
                       Urho3D::VariantMap &eventData);
 
 protected:
-  Urho3D::ResourceCache &mResourceCache;
+  inline entityx::Entity CreateEntity() { return entities.create(); }
 
+  inline entityx::Entity CreateEntity(const Urho3D::String &name) {
+    auto entity = entities.create();
+    entity.assign<Name>(name);
+    return entity;
+  }
+
+  inline entityx::Entity CreateRenderableEntity() {
+    auto entity = CreateEntity();
+    entity.assign<Renderable>();
+    return entity;
+  }
+
+  inline entityx::Entity CreateRenderableEntity(const Urho3D::String &name) {
+    auto entity = CreateEntity(name);
+    entity.assign<Renderable>();
+    return entity;
+  }
+
+  inline entityx::Entity
+  CreateRenderableEntity(const entityx::Entity::Id parentId) {
+    auto entity = CreateEntity();
+    entity.assign<Renderable>(parentId);
+    return entity;
+  }
+
+  inline entityx::Entity
+  CreateRenderableEntity(const Urho3D::String &name,
+                         const entityx::Entity::Id parentId) {
+    auto entity = CreateEntity(name);
+    entity.assign<Renderable>(parentId);
+    return entity;
+  }
+
+protected:
+  Urho3D::ResourceCache &mResourceCache;
   Urho3D::SharedPtr<Urho3D::Scene> mScene;
 };
 
