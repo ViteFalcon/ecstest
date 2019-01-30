@@ -133,7 +133,7 @@ DemoState::DemoState(Urho3D::Context *context)
     l.fov = 25;
     light.assign_from_copy(l);
   }
-  SetBackgroundMusic("Music/Ninja Gods.ogg");
+  SetBackgroundMusic("Music/ibi - Some Sand.ogg");
 
   SubscribeToUpdateEvents();
   SubscribeToKeyDownEvents();

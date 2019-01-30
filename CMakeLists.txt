@@ -96,3 +96,5 @@ find_package(EntityX REQUIRED)
 
 target_include_directories(${TARGET_NAME} PUBLIC ${URHO3D_HOME}/include ${ENTITYX_INCLUDE_DIR})
 target_link_libraries(${TARGET_NAME} ${ENTITYX_LIBRARY})
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Data DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/bin/)
