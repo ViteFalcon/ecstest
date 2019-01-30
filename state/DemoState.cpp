@@ -25,10 +25,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "../components/AngularVelocity.h"
 #include "../components/Direction.h"
+#include "../components/Name.h"
 #include "../components/Position.h"
 #include "../components/Renderable.h"
 #include "../components/Scale.h"
-#include "../components/Name.h"
 
 #include "../events/GameEvents.h"
 
@@ -38,16 +38,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "../systems/UrhoSystem.h"
 
 #include <Urho3D/Core/CoreEvents.h>
-#include <Urho3D/Graphics/Camera.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
-#include <Urho3D/Graphics/Light.h>
 #include <Urho3D/Graphics/Material.h>
 #include <Urho3D/Graphics/Model.h>
 #include <Urho3D/Graphics/Octree.h>
 #include <Urho3D/Graphics/Renderer.h>
 #include <Urho3D/Graphics/Skybox.h>
-#include <Urho3D/Graphics/StaticModel.h>
-#include <Urho3D/Graphics/Viewport.h>
 #include <Urho3D/Input/Input.h>
 
 DemoState::DemoState(Urho3D::Context *context)
@@ -171,19 +167,19 @@ void DemoState::OnUpdate(UpdateEventData &data) {
 
   Urho3D::Vector3 direction = Urho3D::Vector3::ZERO;
   if (input->GetKeyDown(Urho3D::KEY_W)) {
-    direction += Urho3D::Vector3::FORWARD;
+    direction += Urho3D::Vector3::FORWARD * MOVE_SPEED;
   }
   if (input->GetKeyDown(Urho3D::KEY_S)) {
-    direction += Urho3D::Vector3::BACK;
+    direction += Urho3D::Vector3::BACK * MOVE_SPEED;
   }
   if (input->GetKeyDown(Urho3D::KEY_A)) {
-    direction += Urho3D::Vector3::LEFT;
+    direction += Urho3D::Vector3::LEFT * MOVE_SPEED;
   }
   if (input->GetKeyDown(Urho3D::KEY_D)) {
-    direction += Urho3D::Vector3::RIGHT;
+    direction += Urho3D::Vector3::RIGHT * MOVE_SPEED;
   }
-  direction.Normalize();
-  mCamera.component<Velocity>()->value = direction * MOVE_SPEED;
+  mCamera.component<Velocity>()->value =
+      mCamera.component<Direction>()->value * direction;
 
   if (!GetSubsystem<Urho3D::Input>()->IsMouseVisible()) {
     // Use this frame's mouse motion to adjust camera node yaw and pitch. Clamp
