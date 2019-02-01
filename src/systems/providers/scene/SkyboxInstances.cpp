@@ -34,9 +34,7 @@ Urho3D::SharedPtr<Urho3D::Skybox>
 SkyboxInstances::CreateNodeComponent(entityx::Entity entity, Urho3D::Node &node,
                                      const Skybox &component,
                                      entityx::EntityManager &entities) {
-  auto skybox = Urho3D::SharedPtr{node.CreateComponent<Urho3D::Skybox>()};
-  SyncFromData(entity, *skybox, component);
-  return skybox;
+  return Urho3D::SharedPtr{node.CreateComponent<Urho3D::Skybox>()};
 }
 
 void SkyboxInstances::SyncFromData(entityx::Entity entity,
