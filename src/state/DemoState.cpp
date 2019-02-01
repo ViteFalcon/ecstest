@@ -59,12 +59,10 @@ DemoState::DemoState(Urho3D::Context *context)
   // Let's put some sky in there.
   // Again, if the engine can't find these resources you need to check
   // the "ResourcePrefixPath". These files come with Urho3D.
-  auto skyNode = mScene->CreateChild("Sky");
-  skyNode->SetScale(500.0f); // The scale actually does not matter
-  auto skybox = skyNode->CreateComponent<Urho3D::Skybox>();
-  skybox->SetModel(mResourceCache.GetResource<Urho3D::Model>("Models/Box.mdl"));
-  skybox->SetMaterial(
-      mResourceCache.GetResource<Urho3D::Material>("Materials/Skybox.xml"));
+  auto sky = CreateRenderableEntity("Sky");
+  sky.assign<Skybox>("Models/Box.mdl", "Materials/Skybox.xml");
+  // The scale actually does not matter
+  sky.assign<Scale>(500.0f);
 
   // Let's put a box in there.
   mBox = CreateRenderableEntity("Box");

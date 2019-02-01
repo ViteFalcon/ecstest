@@ -21,18 +21,32 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ------------------------------------------------------------------------------------------------------------------------
 */
 
-#ifndef NINPOTEST_SCALE_H
-#define NINPOTEST_SCALE_H
+#ifndef NINPOTEST_SKYBOXINSTANCES_H
+#define NINPOTEST_SKYBOXINSTANCES_H
 
-#include <Urho3D/Math/Vector3.h>
+#include "NodeComponentInstances.h"
 
-struct Scale {
-  Scale() : value(Urho3D::Vector3::ONE) {}
-  Scale(float scalar) : value(scalar, scalar, scalar) {}
-  Scale(float x, float y, float z) : value(x, y, z) {}
-  Scale(const Urho3D::Vector3 &value) : value(value) {}
+#include <Urho3D/Graphics/Skybox.h>
+#include <Urho3D/Resource/ResourceCache.h>
 
-  Urho3D::Vector3 value;
+#include "../../../components/Skybox.h"
+
+class SkyboxInstances
+    : public NodeComponentInstances<SkyboxInstances, Skybox, Urho3D::Skybox> {
+public:
+  SkyboxInstances(Urho3D::Scene &scene, NodeInstances nodes,
+                  Urho3D::ResourceCache &resources);
+
+private:
+  virtual Urho3D::SharedPtr<Urho3D::Skybox>
+  CreateNodeComponent(entityx::Entity entity, Urho3D::Node &node,
+                      const Skybox &component,
+                      entityx::EntityManager &entities) override;
+
+  virtual void SyncFromData(entityx::Entity entity, Urho3D::Skybox &instance,
+                            const Skybox &data) override;
+
+  Urho3D::ResourceCache &mResources;
 };
 
-#endif // NINPOTEST_SCALE_H
+#endif // NINPOTEST_SKYBOXINSTANCES_H

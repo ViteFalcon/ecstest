@@ -44,6 +44,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "providers/scene/SoundListenerInstances.h"
 #include "providers/scene/StaticModelInstances.h"
 #include "providers/scene/SoundInstances.h"
+#include "providers/scene/SkyboxInstances.h"
 
 class UrhoSystem : public entityx::System<UrhoSystem>,
                      public entityx::Receiver<UrhoSystem> {
@@ -70,6 +71,7 @@ private:
   SoundListenerInstances mSoundListeners;
   BackgroundMusicInstances mBackgroundInstances;
   SoundInstances mSounds;
+  SkyboxInstances mSkyboxes;
 };
 
 #endif // NINPOTEST_RENDERSYSTEM_H

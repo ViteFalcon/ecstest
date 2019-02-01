@@ -76,6 +76,8 @@ set(
     src/systems/providers/scene/NodeInstances.cpp
     src/systems/providers/scene/NodeInstances.h
     src/systems/providers/scene/SceneInstances.h
+    src/systems/providers/scene/SkyboxInstances.cpp
+    src/systems/providers/scene/SkyboxInstances.h
     src/systems/providers/scene/SoundInstances.cpp
     src/systems/providers/scene/SoundInstances.h
     src/systems/providers/scene/SoundListenerInstances.cpp

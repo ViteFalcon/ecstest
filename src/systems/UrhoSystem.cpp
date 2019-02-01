@@ -45,7 +45,8 @@ UrhoSystem::UrhoSystem(Urho3D::Context *context,
       mCameras(*scene, mNodes, context, mRenderer),
       mSoundListeners(*scene, mNodes, mAudio),
       mBackgroundInstances(*scene, mResources),
-      mSounds(*scene, mNodes, mResources) {}
+      mSounds(*scene, mNodes, mResources),
+      mSkyboxes(*scene, mNodes, mResources) {}
 
 void UrhoSystem::configure(entityx::EventManager &eventManager) {
   mNodes.Configure(eventManager);
@@ -55,6 +56,7 @@ void UrhoSystem::configure(entityx::EventManager &eventManager) {
   mSoundListeners.Configure(eventManager);
   mBackgroundInstances.Configure(eventManager);
   mSounds.Configure(eventManager);
+  mSkyboxes.Configure(eventManager);
   eventManager.subscribe<entityx::EntityDestroyedEvent>(*this);
 }
 
@@ -69,6 +71,8 @@ void UrhoSystem::update(entityx::EntityManager &entities,
         mBackgroundInstances.Sync(entity, entities);
         mSounds.Sync(entity, entities);
         mSoundListeners.Sync(entity, entities);
+        mSounds.Sync(entity, entities);
+        mSkyboxes.Sync(entity, entities);
       });
 }
 

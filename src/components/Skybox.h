@@ -21,18 +21,17 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ------------------------------------------------------------------------------------------------------------------------
 */
 
-#ifndef NINPOTEST_SCALE_H
-#define NINPOTEST_SCALE_H
+#ifndef NINPOTEST_SKYBOX_H
+#define NINPOTEST_SKYBOX_H
 
-#include <Urho3D/Math/Vector3.h>
+#include <Urho3D/Container/Str.h>
 
-struct Scale {
-  Scale() : value(Urho3D::Vector3::ONE) {}
-  Scale(float scalar) : value(scalar, scalar, scalar) {}
-  Scale(float x, float y, float z) : value(x, y, z) {}
-  Scale(const Urho3D::Vector3 &value) : value(value) {}
+struct Skybox {
+  Skybox(Urho3D::String model, Urho3D::String material)
+      : model(model), material(material) {}
 
-  Urho3D::Vector3 value;
+  Urho3D::String model;
+  Urho3D::String material;
 };
 
-#endif // NINPOTEST_SCALE_H
+#endif // NINPOTEST_SKYBOX_H
