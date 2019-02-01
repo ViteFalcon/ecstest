@@ -140,7 +140,7 @@ void GameState::HandleSoundFinished(Urho3D::StringHash eventType,
   } else if (!entity.has_component<Sound>()) {
     return;
   }
-  OnSoundFinished(entity);
+  OnSoundFinished(entity, data);
   URHO3D_LOGDEBUGF("Destroying sound entity...");
   // NOTE: This order of removal is for a purpose:
   // - If the sound gets removed after 'Renderable' the node will get destroyed, so delete it first

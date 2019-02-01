@@ -37,6 +37,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "../components/Name.h"
 #include "../components/Renderable.h"
 #include "../components/Sound.h"
+#include "../events/SoundFinishedEventData.h"
 #include "../ui/StatusOverlay.h"
 
 class GameState : public Urho3D::Object, public entityx::EntityX {
@@ -90,7 +91,15 @@ protected:
    */
   virtual void OnEndFrame() {}
 
-  virtual void OnSoundFinished(const entityx::Entity entity) {}
+  /**
+   * After a sound finishes its execution, this method gets called with the
+   * entity that played the sound along with the event data.
+   *
+   * @param entity entity that held the sound
+   * @param data Urho3D's sound finished event data
+   */
+  virtual void OnSoundFinished(const entityx::Entity entity,
+                               SoundFinishedEventData &data) {}
 
   void SubscribeToBeginFrameEvents();
 
