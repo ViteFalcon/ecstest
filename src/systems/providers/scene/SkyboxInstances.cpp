@@ -30,33 +30,41 @@ SkyboxInstances::SkyboxInstances(Urho3D::Scene &scene, NodeInstances nodes,
                                  Urho3D::ResourceCache &resources)
     : NodeComponentInstances(scene, nodes, "Skybox"), mResources(resources) {}
 
-Urho3D::SharedPtr<Urho3D::Skybox> SkyboxInstances::CreateNodeComponent(entityx::Entity entity,
-                                                                       Urho3D::Node &node,
-                                                                       const Skybox &component,
-                                                                       entityx::EntityManager &entities) {
+Urho3D::SharedPtr<Urho3D::Skybox>
+SkyboxInstances::CreateNodeComponent(entityx::Entity entity, Urho3D::Node &node,
+                                     const Skybox &component,
+                                     entityx::EntityManager &entities) {
   auto skybox = Urho3D::SharedPtr{node.CreateComponent<Urho3D::Skybox>()};
   SyncFromData(entity, *skybox, component);
   return skybox;
 }
 
-void SkyboxInstances::SyncFromData(entityx::Entity entity, Urho3D::Skybox &instance, const Skybox &data) {
-  if (!data.model.Empty() && (instance.GetModel() == nullptr || instance.GetModel()->GetName() != data.model)) {
+void SkyboxInstances::SyncFromData(entityx::Entity entity,
+                                   Urho3D::Skybox &instance,
+                                   const Skybox &data) {
+  if (!data.model.Empty() && (instance.GetModel() == nullptr ||
+                              instance.GetModel()->GetName() != data.model)) {
     URHO3D_LOGDEBUGF("Loading skybox model: %s", data.model.CString());
     auto model = mResources.GetResource<Urho3D::Model>(data.model);
     if (model == nullptr) {
       URHO3D_LOGERRORF("Failed to load skybox model: %s", data.model.CString());
     }
-    // NOTE: We are setting the model even if failed to load so that the error is obvious
+    // NOTE: We are setting the model even if failed to load so that the error
+    // is obvious
     instance.SetModel(model);
   }
 
-  if (!data.material.Empty() && (instance.GetMaterial() == nullptr || instance.GetMaterial()->GetName() != data.material)) {
+  if (!data.material.Empty() &&
+      (instance.GetMaterial() == nullptr ||
+       instance.GetMaterial()->GetName() != data.material)) {
     URHO3D_LOGDEBUGF("Loading skybox material: %s", data.material.CString());
     auto material = mResources.GetResource<Urho3D::Material>(data.material);
     if (material == nullptr) {
-      URHO3D_LOGERRORF("Failed to load skybox material: %s", data.model.CString());
+      URHO3D_LOGERRORF("Failed to load skybox material: %s",
+                       data.model.CString());
     }
-    // NOTE: We are setting the material even if failed to load so that the error is obvious
+    // NOTE: We are setting the material even if failed to load so that the
+    // error is obvious
     instance.SetMaterial(material);
   }
 }

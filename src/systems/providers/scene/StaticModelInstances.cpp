@@ -33,55 +33,41 @@ StaticModelInstances::StaticModelInstances(Urho3D::Scene &scene,
     : NodeComponentInstances(scene, nodes, "StaticModel"),
       mResources(resources) {}
 
-StaticModelInstance StaticModelInstances::CreateInstanceComponent(
-    entityx::Entity entity, const StaticModel &component,
-    entityx::EntityManager &entities) {
-  Urho3D::SharedPtr<Urho3D::StaticModel> model(
-      Create(entity, component, entities));
-  if (!model) {
-    return StaticModelInstance{};
-  }
-  StaticModelInstance instance{model};
-  LoadModel(instance.cached, *model, component);
-  URHO3D_LOGDEBUGF("Loaded model: %s", instance.cached.model.CString());
-  LoadMaterial(instance.cached, *model, component);
-  URHO3D_LOGDEBUGF("Loaded material: %s", instance.cached.material.CString());
-  return instance;
-}
-
-Urho3D::SharedPtr<Urho3D::StaticModel> StaticModelInstances::CreateNodeComponent(
-    entityx::Entity entity, Urho3D::Node &node, const StaticModel &component,
-    entityx::EntityManager &entities) {
-  return Urho3D::SharedPtr<Urho3D::StaticModel>(node.CreateComponent<Urho3D::StaticModel>());
+Urho3D::SharedPtr<Urho3D::StaticModel>
+StaticModelInstances::CreateNodeComponent(entityx::Entity entity,
+                                          Urho3D::Node &node,
+                                          const StaticModel &component,
+                                          entityx::EntityManager &entities) {
+  return Urho3D::SharedPtr<Urho3D::StaticModel>(
+      node.CreateComponent<Urho3D::StaticModel>());
 }
 
 void StaticModelInstances::SyncFromData(entityx::Entity entity,
                                         Urho3D::StaticModel &instance,
                                         const StaticModel &data) {
-  auto model = entity.component<StaticModelInstance>();
-  if (model->cached.model != data.model) {
-    LoadModel(model->cached, instance, data);
+  if (!data.model.Empty() && (instance.GetModel() == nullptr ||
+                              instance.GetModel()->GetName() != data.model)) {
+    URHO3D_LOGDEBUGF("Loading static model: %s", data.model.CString());
+    auto model = mResources.GetResource<Urho3D::Model>(data.model);
+    if (nullptr == model) {
+      URHO3D_LOGERRORF("Failed to load static model: %s", data.model.CString());
+    }
+    // NOTE: We are setting the model even if failed to load so that the error
+    // is obvious
+    instance.SetModel(model);
   }
 
-  if (model->cached.material != data.material) {
-    LoadMaterial(model->cached, instance, data);
+  if (!data.material.Empty() &&
+      (instance.GetMaterial() == nullptr ||
+       instance.GetMaterial()->GetName() != data.material)) {
+    URHO3D_LOGDEBUGF("Loading static material: %s", data.material.CString());
+    auto material = mResources.GetResource<Urho3D::Material>(data.material);
+    if (material == nullptr) {
+      URHO3D_LOGERRORF("Failed to load static material: %s",
+                       data.model.CString());
+    }
+    // NOTE: We are setting the material even if failed to load so that the
+    // error is obvious
+    instance.SetMaterial(material);
   }
-}
-
-void StaticModelInstances::LoadModel(StaticModel &cachedData,
-                                     Urho3D::StaticModel &instance,
-                                     const StaticModel &data) {
-  URHO3D_LOGDEBUGF("Loading model: %s", data.model.CString());
-  auto model = mResources.GetResource<Urho3D::Model>(data.model);
-  instance.SetModel(model);
-  cachedData.model = data.model;
-}
-
-void StaticModelInstances::LoadMaterial(StaticModel &cachedData,
-                                        Urho3D::StaticModel &instance,
-                                        const StaticModel &data) {
-  URHO3D_LOGDEBUGF("Loading material: %s", data.material.CString());
-  auto material = mResources.GetResource<Urho3D::Material>(data.material);
-  instance.SetMaterial(material);
-  cachedData.material = data.material;
 }

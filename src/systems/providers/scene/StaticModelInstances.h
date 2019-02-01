@@ -30,27 +30,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "../../../components/StaticModel.h"
 
-struct StaticModelInstance {
-  StaticModelInstance() : value(nullptr) {}
-  StaticModelInstance(Urho3D::SharedPtr<Urho3D::StaticModel> value)
-      : value(value) {}
-
-  Urho3D::SharedPtr<Urho3D::StaticModel> value;
-  StaticModel cached{"", ""};
-};
-
 class StaticModelInstances
     : public NodeComponentInstances<StaticModelInstances, StaticModel,
-                                    Urho3D::StaticModel, StaticModelInstance> {
+                                    Urho3D::StaticModel> {
 public:
   StaticModelInstances(Urho3D::Scene &scene, NodeInstances nodes,
                        Urho3D::ResourceCache &resources);
 
 private:
-  virtual StaticModelInstance
-  CreateInstanceComponent(entityx::Entity entity, const StaticModel &component,
-                          entityx::EntityManager &entities) override;
-
   virtual Urho3D::SharedPtr<Urho3D::StaticModel>
   CreateNodeComponent(entityx::Entity entity, Urho3D::Node &node,
                       const StaticModel &component,
@@ -59,13 +46,6 @@ private:
   virtual void SyncFromData(entityx::Entity entity,
                             Urho3D::StaticModel &instance,
                             const StaticModel &data) override;
-
-  virtual void LoadModel(StaticModel &cachedData, Urho3D::StaticModel &instance,
-                         const StaticModel &data);
-
-  virtual void LoadMaterial(StaticModel &cachedData,
-                            Urho3D::StaticModel &instance,
-                            const StaticModel &data);
 
   Urho3D::ResourceCache &mResources;
 };
