@@ -38,13 +38,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "../systems/MovementSystem.h"
 #include "../systems/UrhoSystem.h"
 
-#include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Graphics/DebugRenderer.h>
-#include <Urho3D/Graphics/Material.h>
-#include <Urho3D/Graphics/Model.h>
 #include <Urho3D/Graphics/Octree.h>
 #include <Urho3D/Graphics/Renderer.h>
-#include <Urho3D/Graphics/Skybox.h>
 #include <Urho3D/Input/Input.h>
 
 DemoState::DemoState(Urho3D::Context *context)

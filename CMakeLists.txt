@@ -59,6 +59,8 @@ set(
     src/events/BeginFrameData.h
     src/events/KeyDownData.cpp
     src/events/KeyDownData.h
+    src/events/SoundFinishedEventData.cpp
+    src/events/SoundFinishedEventData.h
     src/events/GameEvents.h
     src/events/UpdateEventData.cpp
     src/events/UpdateEventData.h

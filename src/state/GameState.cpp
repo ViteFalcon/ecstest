@@ -23,6 +23,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "GameState.h"
 #include "../components/BackgroundMusic.h"
+#include "../events/SoundFinishedEventData.h"
 
 #include <Urho3D/Audio/AudioEvents.h>
 #include <Urho3D/Core/CoreEvents.h>
@@ -124,7 +125,8 @@ void GameState::HandleEndFrame(Urho3D::StringHash eventType,
 
 void GameState::HandleSoundFinished(Urho3D::StringHash eventType,
                                Urho3D::VariantMap &eventData) {
-  auto node = static_cast<Urho3D::Node*>(eventData[Urho3D::SoundFinished::P_NODE].GetPtr());
+  auto data = SoundFinishedEventData{eventData};
+  auto node = data.GetNode();
   auto idVariant = node->GetVar(Renderable::ENTITY_ID_NODE_VAR);
   if (idVariant.IsEmpty()) {
     return;
