@@ -32,6 +32,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <Urho3D/Container/Ptr.h>
 #include <Urho3D/IO/Log.h>
 #include <Urho3D/Scene/Scene.h>
+#include <sstream>
 
 template <typename ConcreteType> struct InstanceComponent {
   InstanceComponent(Urho3D::SharedPtr<ConcreteType> value) : value(value) {}
@@ -120,17 +121,28 @@ public:
                       GetName(entity).CString());
       return;
     }
-    URHO3D_LOGINFOF("Destroying '%s'", GetName(entity).CString());
-    DestroyInstance(*(instance->value));
+    URHO3D_LOGDEBUGF("Destroying '%s'", GetName(entity).CString());
+    if (!DestroyInstance(*(instance->value))) {
+      URHO3D_LOGERRORF("Failed to cleanly clean up entity: '%s'", GetName(entity).CString());
+    }
   }
 
 protected:
-  Urho3D::String GetName(entityx::Entity entity) {
-    auto name = entity.component<Name>();
-    if (name) {
-      return mInstanceName + "[" + name->value + "]";
+  Urho3D::String GetName(entityx::Entity& entity) {
+#ifdef URHO3D_LOGGING
+    std::stringstream nameBuilder;
+    nameBuilder << "[";
+    auto nameComponent = entity.component<Name>();
+    if (nameComponent) {
+      nameBuilder << nameComponent->value.CString();
+    } else {
+      nameBuilder << "NO-NAME";
     }
-    return mInstanceName + "[NO-NAME]";
+    nameBuilder << "](" << entity.id().id() << ")";
+    return Urho3D::String{nameBuilder.str().c_str()};
+#else
+    return Urho3D::String{entity.id().id()};
+#endif
   }
 
   Urho3D::String GetAssignedName(entityx::Entity entity) {
@@ -156,7 +168,7 @@ protected:
   virtual void SyncFromData(entityx::Entity entity, ConcreteType &instance,
                             const ComponentType &data) = 0;
 
-  virtual void DestroyInstance(ConcreteType &instance) = 0;
+  virtual bool DestroyInstance(ConcreteType &instance) = 0;
 
 protected:
   Urho3D::Scene &mScene;

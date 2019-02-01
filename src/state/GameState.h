@@ -36,6 +36,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "../components/Name.h"
 #include "../components/Renderable.h"
+#include "../components/Sound.h"
 #include "../ui/StatusOverlay.h"
 
 class GameState : public Urho3D::Object, public entityx::EntityX {
@@ -89,6 +90,8 @@ protected:
    */
   virtual void OnEndFrame() {}
 
+  virtual void OnSoundFinished(const entityx::Entity entity) {}
+
   void SubscribeToBeginFrameEvents();
 
   void SubscribeToKeyDownEvents();
@@ -126,6 +129,9 @@ private:
 
   void HandleEndFrame(Urho3D::StringHash eventType,
                       Urho3D::VariantMap &eventData);
+
+  void HandleSoundFinished(Urho3D::StringHash eventType,
+                           Urho3D::VariantMap &eventData);
 
 protected:
   inline entityx::Entity CreateEntity() { return entities.create(); }
@@ -165,10 +171,19 @@ protected:
 
   void SetBackgroundMusic(const Urho3D::String &filePath);
 
+  void PlaySound(const Sound &sound);
+  void PlaySound(const Urho3D::String &name, const Sound &sound);
+  void PlaySound(const Sound &sound, const entityx::Entity::Id parentId);
+  void PlaySound(const Urho3D::String &name, const Sound &sound,
+                 const entityx::Entity::Id parentId);
+
 protected:
   Urho3D::ResourceCache &mResourceCache;
   Urho3D::SharedPtr<Urho3D::Scene> mScene;
   entityx::Entity mBackgroundMusic;
+
+private:
+  void PlayEntitySound(entityx::Entity entity, const Sound &sound);
 };
 
 #define GAME_STATE(ClassName) URHO3D_OBJECT(ClassName, GameState)

@@ -62,9 +62,14 @@ protected:
                       const ComponentType &component,
                       entityx::EntityManager &entities) = 0;
 
-  virtual void DestroyInstance(ConcreteType &value) override {
+  virtual bool DestroyInstance(ConcreteType &value) override {
     auto node = value.GetNode();
+    if (node == nullptr) {
+      URHO3D_LOGERRORF("Could not find node");
+      return false;
+    }
     node->RemoveComponent(&value);
+    return true;
   }
 
 private:

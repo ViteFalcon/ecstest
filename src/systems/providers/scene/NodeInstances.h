@@ -36,14 +36,14 @@ public:
   explicit NodeInstances(Urho3D::Scene &scene);
 
 private:
-  Urho3D::SharedPtr<Urho3D::Node>
+  virtual Urho3D::SharedPtr<Urho3D::Node>
   Create(entityx::Entity entity, const Renderable &component,
          entityx::EntityManager &entities) override;
 
-  void SyncFromData(entityx::Entity entity, Urho3D::Node &instance,
-                    const Renderable &data) override;
+  virtual void SyncFromData(entityx::Entity entity, Urho3D::Node &instance,
+                            const Renderable &data) override;
 
-  void DestroyInstance(Urho3D::Node &instance) override;
+  virtual bool DestroyInstance(Urho3D::Node &instance) override;
 };
 
 #endif // NINPOTEST_NODEPROVIDER_H

@@ -47,8 +47,10 @@ set(
     src/components/Material.h
     src/components/Name.h
     src/components/Position.h
+    src/components/Renderable.cpp
     src/components/Renderable.h
     src/components/Scale.h
+    src/components/Sound.h
     src/components/SoundListener.h
     src/components/StaticModel.h
     src/components/Velocity.h
@@ -74,6 +76,8 @@ set(
     src/systems/providers/scene/NodeInstances.cpp
     src/systems/providers/scene/NodeInstances.h
     src/systems/providers/scene/SceneInstances.h
+    src/systems/providers/scene/SoundInstances.cpp
+    src/systems/providers/scene/SoundInstances.h
     src/systems/providers/scene/SoundListenerInstances.cpp
     src/systems/providers/scene/SoundListenerInstances.h
     src/systems/providers/scene/StaticModelInstances.cpp

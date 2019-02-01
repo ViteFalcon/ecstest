@@ -44,7 +44,8 @@ UrhoSystem::UrhoSystem(Urho3D::Context *context,
       mStaticModels(*scene, mNodes, mResources),
       mCameras(*scene, mNodes, context, mRenderer),
       mSoundListeners(*scene, mNodes, mAudio),
-      mBackgroundInstances(*scene, mResources) {}
+      mBackgroundInstances(*scene, mResources),
+      mSounds(*scene, mNodes, mResources) {}
 
 void UrhoSystem::configure(entityx::EventManager &eventManager) {
   mNodes.Configure(eventManager);
@@ -53,6 +54,7 @@ void UrhoSystem::configure(entityx::EventManager &eventManager) {
   mCameras.Configure(eventManager);
   mSoundListeners.Configure(eventManager);
   mBackgroundInstances.Configure(eventManager);
+  mSounds.Configure(eventManager);
   eventManager.subscribe<entityx::EntityDestroyedEvent>(*this);
 }
 
@@ -65,6 +67,7 @@ void UrhoSystem::update(entityx::EntityManager &entities,
         mStaticModels.Sync(entity, entities);
         mLights.Sync(entity, entities);
         mBackgroundInstances.Sync(entity, entities);
+        mSounds.Sync(entity, entities);
         mSoundListeners.Sync(entity, entities);
       });
 }
@@ -72,11 +75,7 @@ void UrhoSystem::update(entityx::EntityManager &entities,
 void UrhoSystem::receive(const entityx::EntityDestroyedEvent &event) {
   auto entity = event.entity;
   auto node = mNodes.GetIfExists(entity);
-
   if (node) {
     mScene->RemoveChild(node);
-    return;
   }
-  URHO3D_LOGINFO(
-      "Failed to find node for entity. Skipping detaching the node.");
 }

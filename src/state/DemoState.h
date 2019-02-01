@@ -41,6 +41,7 @@ public:
 private:
   Urho3D::SharedPtr<DemoUI> mUI;
   entityx::Entity mCamera;
+  entityx::Entity mBox;
 };
 
 #endif // NINPOTEST_TESTSCENE_H

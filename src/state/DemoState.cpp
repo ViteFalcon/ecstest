@@ -29,6 +29,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "../components/Position.h"
 #include "../components/Renderable.h"
 #include "../components/Scale.h"
+#include "../components/Sound.h"
 
 #include "../events/GameEvents.h"
 
@@ -66,17 +67,17 @@ DemoState::DemoState(Urho3D::Context *context)
       mResourceCache.GetResource<Urho3D::Material>("Materials/Skybox.xml"));
 
   // Let's put a box in there.
-  auto box = CreateRenderableEntity("Box");
-  box.assign<StaticModel>("Models/Box.mdl", "Materials/Stone.xml");
-  box.assign<Position>(0, 2, 15);
-  box.assign<Direction>();
-  box.assign<Scale>(3, 3, 3);
+  mBox = CreateRenderableEntity("Box");
+  mBox.assign<StaticModel>("Models/Box.mdl", "Materials/Stone.xml");
+  mBox.assign<Position>(0, 2, 15);
+  mBox.assign<Direction>();
+  mBox.assign<Scale>(3, 3, 3);
   // Rotate the box thingy.
   // A much nicer way of doing this would be with a LogicComponent.
   // With LogicComponents it is easy to control things like movement
   // and animation from some IDE, console or just in game.
   // Alas, it is out of the scope for our simple example.
-  box.assign<AngularVelocity>(10, 20, 0);
+  mBox.assign<AngularVelocity>(10, 20, 0);
 
   // Create 400 boxes in a grid.
   for (int x = -30; x < 30; x += 3) {
@@ -94,6 +95,7 @@ DemoState::DemoState(Urho3D::Context *context)
   mCamera.assign<Position>();
   mCamera.assign<Velocity>();
   mCamera.assign<Direction>();
+  mCamera.assign<SoundListener>(mCamera.id());
 
   // Create a red directional light (sun)
   {
@@ -147,8 +149,8 @@ void DemoState::OnKeyDown(KeyDownData &data) {
     SendEvent(E_SIGNAL_TERMINATE);
   }
 
-  if (key == KEY_TAB) // toggle mouse cursor when pressing tab
-  {
+  if (key == KEY_TAB) {
+    // toggle mouse cursor when pressing tab
     GetSubsystem<Input>()->SetMouseVisible(
         !GetSubsystem<Input>()->IsMouseVisible());
   }
@@ -163,6 +165,11 @@ void DemoState::OnUpdate(UpdateEventData &data) {
   auto input = GetSubsystem<Urho3D::Input>();
   if (input->GetKeyDown(Urho3D::KEY_SHIFT)) {
     MOVE_SPEED *= 10;
+  }
+
+  if (input->GetKeyPress(Urho3D::KEY_SPACE)) {
+    auto explosion = ::Sound("Sounds/BigExplosion.wav");
+    PlaySound("BigExplosion", explosion, mBox.id());
   }
 
   Urho3D::Vector3 direction = Urho3D::Vector3::ZERO;

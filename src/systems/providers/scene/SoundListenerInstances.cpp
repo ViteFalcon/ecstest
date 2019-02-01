@@ -51,7 +51,8 @@ void SoundListenerInstances::SyncFromData(entityx::Entity entity,
   // Nothing to do
 }
 
-void SoundListenerInstances::DestroyInstance(Urho3D::SoundListener &value) {
+bool SoundListenerInstances::DestroyInstance(Urho3D::SoundListener &value) {
   mAudio.SetListener(nullptr);
   NodeComponentInstances::DestroyInstance(value);
+  return true;
 }

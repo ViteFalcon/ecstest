@@ -48,7 +48,7 @@ private:
                             Urho3D::SoundSource &instance,
                             const BackgroundMusic &data) override;
 
-  virtual void DestroyInstance(Urho3D::SoundSource &instance) override;
+  virtual bool DestroyInstance(Urho3D::SoundSource &instance) override;
 
   bool PlayMusic(Urho3D::SoundSource &soundSource, const Urho3D::String file);
 

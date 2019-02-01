@@ -24,14 +24,19 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "GameState.h"
 #include "../components/BackgroundMusic.h"
 
+#include <Urho3D/Audio/AudioEvents.h>
 #include <Urho3D/Core/CoreEvents.h>
 #include <Urho3D/Input/InputEvents.h>
+#include <Urho3D/Audio/AudioEvents.h>
+#include <Urho3D/IO/Log.h>
 
 GameState::GameState(Urho3D::Context *context)
     : Urho3D::Object(context),
       mResourceCache(*GetSubsystem<Urho3D::ResourceCache>()),
       mScene(new Urho3D::Scene(context)),
-      mBackgroundMusic(CreateRenderableEntity("BackgroundMusic")) {}
+      mBackgroundMusic(CreateRenderableEntity("BackgroundMusic")) {
+  SubscribeToEvent(Urho3D::E_SOUNDFINISHED, URHO3D_HANDLER(GameState, HandleSoundFinished));
+}
 
 void GameState::SubscribeToBeginFrameEvents() {
   SubscribeToEvent(Urho3D::E_BEGINFRAME,
@@ -117,6 +122,32 @@ void GameState::HandleEndFrame(Urho3D::StringHash eventType,
   OnEndFrame();
 }
 
+void GameState::HandleSoundFinished(Urho3D::StringHash eventType,
+                               Urho3D::VariantMap &eventData) {
+  auto node = static_cast<Urho3D::Node*>(eventData[Urho3D::SoundFinished::P_NODE].GetPtr());
+  auto idVariant = node->GetVar(Renderable::ENTITY_ID_NODE_VAR);
+  if (idVariant.IsEmpty()) {
+    return;
+  }
+  auto idValue = idVariant.GetUInt64();
+  auto entityId = entityx::Entity::Id(idValue);
+  auto entity = entities.get(entityId);
+  if (!entity.valid()) {
+    URHO3D_LOGERRORF("The node associated with the sound has an invalid entity associated with it");
+    return;
+  } else if (!entity.has_component<Sound>()) {
+    return;
+  }
+  OnSoundFinished(entity);
+  URHO3D_LOGDEBUGF("Destroying sound entity...");
+  // NOTE: This order of removal is for a purpose:
+  // - If the sound gets removed after 'Renderable' the node will get destroyed, so delete it first
+  // - If the name gets removed before 'Renderable' the node removal will not have the necessary debug information
+  entity.remove<Sound>();
+  entity.remove<Renderable>();
+  entity.destroy();
+}
+
 void GameState::SetBackgroundMusic(const Urho3D::String &filePath) {
   auto bgm = mBackgroundMusic.component<BackgroundMusic>();
   if (bgm) {
@@ -124,4 +155,30 @@ void GameState::SetBackgroundMusic(const Urho3D::String &filePath) {
   } else {
     mBackgroundMusic.assign<BackgroundMusic>(filePath);
   }
+}
+
+void GameState::PlaySound(const Sound &sound) {
+  auto entity = CreateRenderableEntity();
+  PlayEntitySound(entity, sound);
+}
+
+void GameState::PlaySound(const Urho3D::String &name, const Sound &sound) {
+  auto entity = CreateRenderableEntity(name);
+  PlayEntitySound(entity, sound);
+}
+
+void GameState::PlaySound(const Sound &sound,
+                          const entityx::Entity::Id parentId) {
+  auto entity = CreateRenderableEntity(parentId);
+  PlayEntitySound(entity, sound);
+}
+
+void GameState::PlaySound(const Urho3D::String &name, const Sound &sound,
+                          const entityx::Entity::Id parentId) {
+  auto entity = CreateRenderableEntity(name, parentId);
+  PlayEntitySound(entity, sound);
+}
+
+inline void GameState::PlayEntitySound(entityx::Entity entity, const Sound &sound) {
+  entity.assign_from_copy(sound);
 }

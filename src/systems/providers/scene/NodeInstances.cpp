@@ -46,14 +46,19 @@ NodeInstances::Create(entityx::Entity entity, const Renderable &component,
     return Urho3D::SharedPtr<Urho3D::Node>{};
   }
   Urho3D::SharedPtr<Urho3D::Node> parentNode;
+  Urho3D::SharedPtr<Urho3D::Node> node;
   if (!Get(parentNode, parentEntity, entities)) {
     URHO3D_LOGERRORF("Could not find the parent node (%s) create a child for "
                      "'%s'. Defaulting to root scene node",
                      GetName(parentEntity).CString(),
                      GetName(entity).CString());
-    return Urho3D::SharedPtr<Urho3D::Node>(mScene.CreateChild(name));
+    node = Urho3D::SharedPtr<Urho3D::Node>(mScene.CreateChild(name));
+  } else {
+    node = Urho3D::SharedPtr<Urho3D::Node>(parentNode->CreateChild(name));
   }
-  return Urho3D::SharedPtr<Urho3D::Node>(parentNode->CreateChild(name));
+  Urho3D::Variant entityId(entity.id().id());
+  node->SetVar(Renderable::ENTITY_ID_NODE_VAR, entityId);
+  return node;
 }
 
 void NodeInstances::SyncFromData(entityx::Entity entity, Urho3D::Node &instance,
@@ -72,6 +77,7 @@ void NodeInstances::SyncFromData(entityx::Entity entity, Urho3D::Node &instance,
   }
 }
 
-void NodeInstances::DestroyInstance(Urho3D::Node &instance) {
+bool NodeInstances::DestroyInstance(Urho3D::Node &instance) {
   instance.GetParent()->RemoveChild(&instance);
+  return true;
 }

@@ -21,25 +21,38 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ------------------------------------------------------------------------------------------------------------------------
 */
 
-#ifndef NINPOTEST_RENDERABLE_H
-#define NINPOTEST_RENDERABLE_H
+#ifndef NINPOTEST_SOUNDINSTANCES_H
+#define NINPOTEST_SOUNDINSTANCES_H
 
-#include <entityx/Entity.h>
-#include <Urho3D/Container/Str.h>
+#include "../../../components/Sound.h"
+#include "NodeComponentInstances.h"
+#include "SceneInstances.h"
 
-struct Renderable {
-  static const Urho3D::String ENTITY_ID_NODE_VAR;
+#include <Urho3D/Audio/Sound.h>
+#include <Urho3D/Audio/SoundSource3D.h>
+#include <Urho3D/Resource/ResourceCache.h>
 
-  Renderable() : parentEntityId(entityx::Entity::INVALID) {}
+class SoundInstances : public NodeComponentInstances<SoundInstances, Sound,
+                                                     Urho3D::SoundSource3D> {
+public:
+  SoundInstances(Urho3D::Scene &scene, NodeInstances &nodes,
+                 Urho3D::ResourceCache &resources);
 
-  explicit Renderable(entityx::Entity::Id parentEntityId)
-      : parentEntityId(parentEntityId) {}
+protected:
+  virtual Urho3D::SharedPtr<Urho3D::SoundSource3D>
+  CreateNodeComponent(entityx::Entity entity, Urho3D::Node &node,
+                      const Sound &component,
+                      entityx::EntityManager &entities) override;
 
-  bool IsChild() const { return !IsRoot(); }
+  virtual void SyncFromData(entityx::Entity entity,
+                            Urho3D::SoundSource3D &instance,
+                            const Sound &data) override;
 
-  bool IsRoot() const { return parentEntityId == entityx::Entity::INVALID; }
+  virtual bool DestroyInstance(Urho3D::SoundSource3D &value) override;
 
-  entityx::Entity::Id parentEntityId;
+private:
+  Urho3D::ResourceCache &mResources;
+  Urho3D::HashMap<unsigned int, entityx::Entity> mSounds;
 };
 
-#endif // NINPOTEST_RENDERABLE_H
+#endif // NINPOTEST_SOUNDINSTANCES_H

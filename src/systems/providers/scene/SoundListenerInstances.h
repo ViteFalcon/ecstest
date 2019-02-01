@@ -48,7 +48,7 @@ private:
                             Urho3D::SoundListener &instance,
                             const SoundListener &data) override;
 
-  virtual void DestroyInstance(Urho3D::SoundListener &value) override;
+  virtual bool DestroyInstance(Urho3D::SoundListener &value) override;
 
   Urho3D::Audio &mAudio;
   entityx::Entity::Id mCurrentListener;

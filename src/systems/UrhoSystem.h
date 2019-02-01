@@ -43,6 +43,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "providers/scene/NodeInstances.h"
 #include "providers/scene/SoundListenerInstances.h"
 #include "providers/scene/StaticModelInstances.h"
+#include "providers/scene/SoundInstances.h"
 
 class UrhoSystem : public entityx::System<UrhoSystem>,
                      public entityx::Receiver<UrhoSystem> {
@@ -68,6 +69,7 @@ private:
   CameraInstances mCameras;
   SoundListenerInstances mSoundListeners;
   BackgroundMusicInstances mBackgroundInstances;
+  SoundInstances mSounds;
 };
 
 #endif // NINPOTEST_RENDERSYSTEM_H

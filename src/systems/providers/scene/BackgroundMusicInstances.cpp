@@ -52,10 +52,11 @@ void BackgroundMusicInstances::SyncFromData(entityx::Entity entity,
   PlayMusic(instance, data.value);
 }
 
-void BackgroundMusicInstances::DestroyInstance(Urho3D::SoundSource &instance) {
+bool BackgroundMusicInstances::DestroyInstance(Urho3D::SoundSource &instance) {
   instance.Stop();
   mSound.Reset();
   mScene.RemoveComponent(&instance);
+  return true;
 }
 
 bool BackgroundMusicInstances::PlayMusic(Urho3D::SoundSource &soundSource,
