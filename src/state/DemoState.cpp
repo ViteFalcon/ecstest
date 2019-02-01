@@ -197,9 +197,4 @@ void DemoState::OnUpdate(UpdateEventData &data) {
     direction->Yaw(yaw_);
     direction->Pitch(pitch_);
   }
-
-  float timeStep = data.GetTimeStep();
-
-  systems.update<MovementSystem>(timeStep);
-  systems.update<UrhoSystem>(timeStep);
 }

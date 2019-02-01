@@ -35,7 +35,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #define STATUS_OVERLAY_FIRST_LINE                                              \
   "Keys: tab = toggle mouse, AWSD = move camera, Shift = fast mode, Esc = "    \
-  "quit.\n"
+  "quit, Space = EXPLOSIONS!\n"
 
 StatusOverlay::StatusOverlay(Urho3D::Context *context)
     : GameUI(context), mFrameCount(0), mTime(0.0f) {
@@ -47,7 +47,7 @@ StatusOverlay::StatusOverlay(Urho3D::Context *context)
   // Set the environment variables URHO3D_HOME, URHO3D_PREFIX_PATH or
   // change the engine parameter "ResourcePrefixPath" in the Setup method.
   text->SetFont(cache->GetResource<Urho3D::Font>("Fonts/Anonymous Pro.ttf"),
-                20);
+                18);
   text->SetColor(Urho3D::Color(.3, 0, .3));
   text->SetHorizontalAlignment(Urho3D::HA_CENTER);
   text->SetVerticalAlignment(Urho3D::VA_TOP);

@@ -98,6 +98,8 @@ void GameState::HandleUpdate(Urho3D::StringHash eventType,
                              Urho3D::VariantMap &eventData) {
   UpdateEventData data{eventData};
   OnUpdate(data);
+  float timeStep = data.GetTimeStep();
+  systems.update_all(timeStep);
 }
 
 void GameState::HandlePostUpdate(Urho3D::StringHash eventType,
