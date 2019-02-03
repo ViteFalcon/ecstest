@@ -154,38 +154,38 @@ protected:
     mRegistry.assign(entity, std::forward<Args>(args)...);
   }
 
-  inline Urho3D::Entity CreateEntity() {
-    return Urho3D::Entity{mRegistry};
-  }
+  inline Urho3D::EntityId CreateEntity() { return mRegistry.create(); }
 
-  inline Urho3D::Entity CreateEntity(const Urho3D::String &name) {
+  inline Urho3D::EntityId CreateEntity(const Urho3D::String &name) {
     auto entity = CreateEntity();
-    entity.assign<Name>(name);
+    mRegistry.assign<Name>(entity, name);
     return entity;
   }
 
-  inline Urho3D::Entity CreateRenderableEntity() {
+  inline Urho3D::EntityId CreateRenderableEntity() {
     auto entity = CreateEntity();
-    entity.assign<Renderable>();
+    mRegistry.assign<Renderable>(entity);
     return entity;
   }
 
-  inline Urho3D::Entity CreateRenderableEntity(const Urho3D::String &name) {
+  inline Urho3D::EntityId CreateRenderableEntity(const Urho3D::String &name) {
     auto entity = CreateEntity(name);
-    entity.assign<Renderable>();
+    mRegistry.assign<Renderable>(entity);
     return entity;
   }
 
-  inline Urho3D::Entity CreateRenderableEntity(const Urho3D::EntityId parentId) {
+  inline Urho3D::EntityId
+  CreateRenderableEntity(const Urho3D::EntityId parentId) {
     auto entity = CreateEntity();
-    entity.assign<Renderable>(parentId);
+    mRegistry.assign<Renderable>(entity, parentId);
     return entity;
   }
 
-  inline Urho3D::Entity CreateRenderableEntity(const Urho3D::String &name,
-                                           const Urho3D::EntityId parentId) {
+  inline Urho3D::EntityId
+  CreateRenderableEntity(const Urho3D::String &name,
+                         const Urho3D::EntityId parentId) {
     auto entity = CreateEntity(name);
-    entity.assign<Renderable>(parentId);
+    mRegistry.assign<Renderable>(entity, parentId);
     return entity;
   }
 
@@ -201,10 +201,10 @@ protected:
   Urho3D::ResourceCache &mResourceCache;
   Urho3D::SharedPtr<Urho3D::Scene> mScene;
   Urho3D::EntityRegistry mRegistry;
-  Urho3D::Entity mBackgroundMusic;
+  Urho3D::EntityId mBackgroundMusic;
 
 private:
-  void PlayEntitySound(Urho3D::Entity &entity, const Sound &sound);
+  void PlayEntitySound(Urho3D::EntityId entity, const Sound &sound);
 };
 
 #define GAME_STATE(ClassName) URHO3D_OBJECT(ClassName, GameState)

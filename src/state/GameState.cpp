@@ -168,10 +168,10 @@ void GameState::AddEntitySystem(Urho3D::EntitySystem *system) {
 }
 
 void GameState::SetBackgroundMusic(const Urho3D::String &filePath) {
-  if (mBackgroundMusic.has<BackgroundMusic>()) {
-    mBackgroundMusic.get<BackgroundMusic>().value = filePath;
+  if (mRegistry.has<BackgroundMusic>(mBackgroundMusic)) {
+    mRegistry.get<BackgroundMusic>(mBackgroundMusic).value = filePath;
   } else {
-    mBackgroundMusic.assign<BackgroundMusic>(filePath);
+    mRegistry.assign<BackgroundMusic>(mBackgroundMusic, filePath);
   }
 }
 
@@ -196,7 +196,7 @@ void GameState::PlaySound(const Urho3D::String &name, const Sound &sound,
   PlayEntitySound(entity, sound);
 }
 
-inline void GameState::PlayEntitySound(Urho3D::Entity &entity,
+inline void GameState::PlayEntitySound(Urho3D::EntityId entity,
                                        const Sound &sound) {
-  entity.assign<Sound>(sound);
+  mRegistry.assign<Sound>(entity, sound);
 }

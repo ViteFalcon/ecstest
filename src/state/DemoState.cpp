@@ -49,9 +49,9 @@ DemoState::DemoState(Urho3D::Context *context)
   // Again, if the engine can't find these resources you need to check
   // the "ResourcePrefixPath". These files come with Urho3D.
   auto sky = CreateRenderableEntity("Sky");
-  sky.assign<Skybox>("Models/Box.mdl", "Materials/Skybox.xml");
+  mRegistry.assign<Skybox>(sky, "Models/Box.mdl", "Materials/Skybox.xml");
   // The scale actually does not matter
-  sky.assign<Scale>(500.0f);
+  mRegistry.assign<Scale>(sky, 500.0f);
 
   // Let's put a box in there.
   mBox.assign<Name>("Box");
@@ -71,9 +71,9 @@ DemoState::DemoState(Urho3D::Context *context)
   for (int x = -30; x < 30; x += 3) {
     for (int z = 0; z < 60; z += 3) {
       auto box = CreateRenderableEntity("Box");
-      box.assign<Position>(x, -3, z);
-      box.assign<Scale>(2, 2, 2);
-      box.assign<StaticModel>("Models/Box.mdl", "Materials/Stone.xml");
+      mRegistry.assign<Position>(box, x, -3, z);
+      mRegistry.assign<Scale>(box, 2, 2, 2);
+      mRegistry.assign<StaticModel>(box, "Models/Box.mdl", "Materials/Stone.xml");
     }
   }
 
@@ -89,7 +89,7 @@ DemoState::DemoState(Urho3D::Context *context)
   // Create a red directional light (sun)
   {
     auto light = CreateRenderableEntity("RedDirectionalLight");
-    auto &direction = light.assign<Direction>();
+    auto &direction = mRegistry.assign<Direction>(light);
     direction.SetDirection(Urho3D::Vector3::FORWARD);
     direction.Yaw(50);
     direction.Pitch(10);
@@ -98,31 +98,31 @@ DemoState::DemoState(Urho3D::Context *context)
     l.brightness = 1.6;
     l.color = Urho3D::Color(1.0, .6, 0.3, 1);
     l.castShadows = true;
-    light.assign<Light>(l);
+    mRegistry.assign<Light>(light, l);
   }
   // Create a blue point light
   {
     auto light = CreateRenderableEntity("BluePointLight");
-    light.assign<Position>(-10, 2, 5);
+    mRegistry.assign<Position>(light, -10, 2, 5);
     auto l = Light{};
     l.type = Urho3D::LIGHT_POINT;
     l.range = 25;
     l.brightness = 1.7;
     l.color = Urho3D::Color(0.5, .5, 1.0, 1);
     l.castShadows = true;
-    light.assign<Light>(l);
+    mRegistry.assign<Light>(light, l);
   }
   // add a green spot light to the camera node
   {
     auto light = CreateRenderableEntity("GreenSpotLight", mCamera.entity());
-    light.assign<Direction>().Pitch(15); // point slightly downwards
+    mRegistry.assign<Direction>(light).Pitch(15); // point slightly downwards
     auto l = Light{};
     l.type = Urho3D::LIGHT_SPOT;
     l.range = 20;
     l.color = Urho3D::Color(.6, 1, .6, 1.0);
     l.brightness = 2.8;
     l.fov = 25;
-    light.assign<Light>(l);
+    mRegistry.assign<Light>(light, l);
   }
   SetBackgroundMusic("Music/ibi - Some Sand.ogg");
 
