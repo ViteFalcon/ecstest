@@ -37,14 +37,14 @@ class BackgroundMusicInstances
                             Urho3D::SoundSource> {
 public:
   BackgroundMusicInstances(Urho3D::Scene &scene,
+                           Urho3D::EntityRegistry &registry,
                            Urho3D::ResourceCache &resources);
 
 private:
   virtual Urho3D::SharedPtr<Urho3D::SoundSource>
-  Create(entityx::Entity entity, const BackgroundMusic &component,
-         entityx::EntityManager &entities) override;
+  Create(Urho3D::EntityId entityId, const BackgroundMusic &component) override;
 
-  virtual void SyncFromData(entityx::Entity entity,
+  virtual void SyncFromData(Urho3D::EntityId entityId,
                             Urho3D::SoundSource &instance,
                             const BackgroundMusic &data) override;
 

@@ -24,22 +24,24 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef NINPOTEST_RENDERABLE_H
 #define NINPOTEST_RENDERABLE_H
 
-#include <entityx/Entity.h>
+#include "../common/Types.h"
 #include <Urho3D/Container/Str.h>
 
 struct Renderable {
+  using EntityType = entt::DefaultRegistry::entity_type;
+
   static const Urho3D::String ENTITY_ID_NODE_VAR;
 
-  Renderable() : parentEntityId(entityx::Entity::INVALID) {}
+  Renderable() : parentEntityId(Urho3D::NullEntityId) {}
 
-  explicit Renderable(entityx::Entity::Id parentEntityId)
+  explicit Renderable(Urho3D::EntityId parentEntityId)
       : parentEntityId(parentEntityId) {}
 
   bool IsChild() const { return !IsRoot(); }
 
-  bool IsRoot() const { return parentEntityId == entityx::Entity::INVALID; }
+  bool IsRoot() const { return parentEntityId == Urho3D::NullEntityId; }
 
-  entityx::Entity::Id parentEntityId;
+  EntityType parentEntityId;
 };
 
 #endif // NINPOTEST_RENDERABLE_H

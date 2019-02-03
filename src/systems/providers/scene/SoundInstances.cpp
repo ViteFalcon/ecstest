@@ -30,14 +30,15 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <Urho3D/Graphics/DebugRenderer.h>
 #include <Urho3D/Scene/SceneEvents.h>
 
-SoundInstances::SoundInstances(Urho3D::Scene &scene, NodeInstances &nodes,
+SoundInstances::SoundInstances(Urho3D::Scene &scene,
+                               Urho3D::EntityRegistry &registry,
+                               NodeInstances &nodes,
                                Urho3D::ResourceCache &resources)
-    : NodeComponentInstances(scene, nodes, "Sound"), mResources(resources) {}
+    : NodeComponentInstances(scene, registry, nodes, "Sound"),
+      mResources(resources) {}
 
-Urho3D::SharedPtr<Urho3D::SoundSource3D>
-SoundInstances::CreateNodeComponent(entityx::Entity entity, Urho3D::Node &node,
-                                    const Sound &component,
-                                    entityx::EntityManager &entities) {
+Urho3D::SharedPtr<Urho3D::SoundSource3D> SoundInstances::CreateNodeComponent(
+    Urho3D::EntityId entityId, Urho3D::Node &node, const Sound &component) {
   auto sound = mResources.GetResource<Urho3D::Sound>(component.value);
   if (!sound) {
     URHO3D_LOGERRORF("Failed to load sound: %s", component.value.CString());
@@ -50,17 +51,18 @@ SoundInstances::CreateNodeComponent(entityx::Entity entity, Urho3D::Node &node,
     URHO3D_LOGERROR("Failed to create sound source 3D");
     return Urho3D::SharedPtr<Urho3D::SoundSource3D>{};
   }
-  mSounds[source->GetID()] = entity;
+  mSounds[source->GetID()] = entityId;
   sound->SetLooped(component.isLooped);
-  SyncFromData(entity, *source, component);
+  SyncFromData(entityId, *source, component);
   source->Play(sound);
 
   URHO3D_LOGDEBUGF("Added sound '%s' to entity ID: '%s'",
-                   sound->GetName().CString(), this->GetName(entity).CString());
+                   sound->GetName().CString(),
+                   this->GetName(entityId).CString());
   return source;
 }
 
-void SoundInstances::SyncFromData(entityx::Entity entity,
+void SoundInstances::SyncFromData(Urho3D::EntityId entityId,
                                   Urho3D::SoundSource3D &source,
                                   const Sound &data) {
   source.SetNearDistance(data.nearDistance);

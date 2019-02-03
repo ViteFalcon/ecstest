@@ -34,16 +34,15 @@ class StaticModelInstances
     : public NodeComponentInstances<StaticModelInstances, StaticModel,
                                     Urho3D::StaticModel> {
 public:
-  StaticModelInstances(Urho3D::Scene &scene, NodeInstances nodes,
-                       Urho3D::ResourceCache &resources);
+  StaticModelInstances(Urho3D::Scene &scene, Urho3D::EntityRegistry &registry,
+                       NodeInstances nodes, Urho3D::ResourceCache &resources);
 
 private:
   virtual Urho3D::SharedPtr<Urho3D::StaticModel>
-  CreateNodeComponent(entityx::Entity entity, Urho3D::Node &node,
-                      const StaticModel &component,
-                      entityx::EntityManager &entities) override;
+  CreateNodeComponent(Urho3D::EntityId entityId, Urho3D::Node &node,
+                      const StaticModel &component) override;
 
-  virtual void SyncFromData(entityx::Entity entity,
+  virtual void SyncFromData(Urho3D::EntityId entityId,
                             Urho3D::StaticModel &instance,
                             const StaticModel &data) override;
 

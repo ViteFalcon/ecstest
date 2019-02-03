@@ -27,8 +27,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "../ui/DemoUI.h"
 #include "GameState.h"
 
-#include <entityx/Entity.h>
-
 class DemoState : public GameState {
   GAME_STATE(DemoState)
 public:
@@ -40,8 +38,8 @@ public:
 
 private:
   Urho3D::SharedPtr<DemoUI> mUI;
-  entityx::Entity mCamera;
-  entityx::Entity mBox;
+  Urho3D::Entity mCamera;
+  Urho3D::Entity mBox;
 };
 
 #endif // NINPOTEST_TESTSCENE_H

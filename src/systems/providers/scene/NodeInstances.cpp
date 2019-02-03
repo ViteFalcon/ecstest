@@ -28,52 +28,53 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "../../../components/Position.h"
 #include "../../../components/Scale.h"
 
-NodeInstances::NodeInstances(Urho3D::Scene &scene)
-    : SceneInstances(scene, "Node") {}
+NodeInstances::NodeInstances(Urho3D::Scene &scene, Urho3D::EntityRegistry &registry)
+    : SceneInstances(scene, registry, "Node") {}
 
 Urho3D::SharedPtr<Urho3D::Node>
-NodeInstances::Create(entityx::Entity entity, const Renderable &component,
-                      entityx::EntityManager &entities) {
-  auto name = GetAssignedName(entity);
+NodeInstances::Create(Urho3D::EntityId entityId, const Renderable &component) {
+  auto name = GetAssignedName(entityId);
   if (component.IsRoot()) {
     return Urho3D::SharedPtr<Urho3D::Node>(mScene.CreateChild(name));
   }
-  auto parentEntity = entities.get(component.parentEntityId);
-  if (!parentEntity) {
+
+  if (!mRegistry.valid(component.parentEntityId)) {
     URHO3D_LOGERRORF("Count not find parent entity ID to connect to its node "
                      "when constructing '%s'",
-                     GetName(entity).CString());
+                     GetName(entityId).CString());
     return Urho3D::SharedPtr<Urho3D::Node>{};
   }
+
   Urho3D::SharedPtr<Urho3D::Node> parentNode;
   Urho3D::SharedPtr<Urho3D::Node> node;
-  if (!Get(parentNode, parentEntity, entities)) {
-    URHO3D_LOGERRORF("Could not find the parent node (%s) create a child for "
-                     "'%s'. Defaulting to root scene node",
-                     GetName(parentEntity).CString(),
-                     GetName(entity).CString());
+
+  if (!Get(parentNode, component.parentEntityId, mRegistry)) {
+    URHO3D_LOGERRORF("Could not find the parent node (%s) to create a child for '%s'. Defaulting to root scene node",
+                     GetName(component.parentEntityId).CString(),
+                     GetName(entityId).CString());
     node = Urho3D::SharedPtr<Urho3D::Node>(mScene.CreateChild(name));
   } else {
     node = Urho3D::SharedPtr<Urho3D::Node>(parentNode->CreateChild(name));
   }
-  Urho3D::Variant entityId(entity.id().id());
-  node->SetVar(Renderable::ENTITY_ID_NODE_VAR, entityId);
+  node->SetVar(Renderable::ENTITY_ID_NODE_VAR, Urho3D::Variant{entityId});
   return node;
 }
 
-void NodeInstances::SyncFromData(entityx::Entity entity, Urho3D::Node &instance,
+void NodeInstances::SyncFromData(Urho3D::EntityId entityId, Urho3D::Node &instance,
                                  const Renderable &data) {
-  auto pos = entity.component<Position>();
-  if (pos) {
-    instance.SetPosition(pos->value);
+  if (mRegistry.has<Position>(entityId)) {
+    auto value = mRegistry.get<Position>(entityId).value;
+    instance.SetPosition(value);
   }
-  auto dir = entity.component<Direction>();
-  if (dir) {
-    instance.SetRotation(dir->value);
+
+  if (mRegistry.has<Direction>(entityId)) {
+    auto value = mRegistry.get<Direction>(entityId).value;
+    instance.SetRotation(value);
   }
-  auto scale = entity.component<Scale>();
-  if (scale) {
-    instance.SetScale(scale->value);
+
+  if (mRegistry.has<Scale>(entityId)) {
+    auto value = mRegistry.get<Scale>(entityId).value;
+    instance.SetScale(value);
   }
 }
 

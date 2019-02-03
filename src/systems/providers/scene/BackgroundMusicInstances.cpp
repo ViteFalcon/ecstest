@@ -26,13 +26,15 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <Urho3D/Audio/SoundSource.h>
 
 BackgroundMusicInstances::BackgroundMusicInstances(
-    Urho3D::Scene &scene, Urho3D::ResourceCache &resources)
-    : SceneInstances(scene, "BackgroundMusic"), mResources(resources) {}
+    Urho3D::Scene &scene, Urho3D::EntityRegistry &registry,
+    Urho3D::ResourceCache &resources)
+    : SceneInstances<BackgroundMusicInstances, BackgroundMusic,
+                     Urho3D::SoundSource>(scene, registry, "BackgroundMusic"),
+      mResources(resources) {}
 
 Urho3D::SharedPtr<Urho3D::SoundSource>
-BackgroundMusicInstances::Create(entityx::Entity entity,
-                                 const BackgroundMusic &component,
-                                 entityx::EntityManager &entities) {
+BackgroundMusicInstances::Create(Urho3D::EntityId entityId,
+                                 const BackgroundMusic &component) {
   auto soundSource = mScene.CreateComponent<Urho3D::SoundSource>();
   if (PlayMusic(*soundSource, component.value)) {
     return Urho3D::SharedPtr(soundSource);
@@ -42,7 +44,7 @@ BackgroundMusicInstances::Create(entityx::Entity entity,
   return Urho3D::SharedPtr<Urho3D::SoundSource>{};
 }
 
-void BackgroundMusicInstances::SyncFromData(entityx::Entity entity,
+void BackgroundMusicInstances::SyncFromData(Urho3D::EntityId entityId,
                                             Urho3D::SoundSource &instance,
                                             const BackgroundMusic &data) {
   if (mSound->GetName() == data.value) {

@@ -28,21 +28,21 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <Urho3D/IO/Log.h>
 
 StaticModelInstances::StaticModelInstances(Urho3D::Scene &scene,
+                                           Urho3D::EntityRegistry &registry,
                                            NodeInstances nodes,
                                            Urho3D::ResourceCache &resources)
-    : NodeComponentInstances(scene, nodes, "StaticModel"),
+    : NodeComponentInstances(scene, registry, nodes, "StaticModel"),
       mResources(resources) {}
 
 Urho3D::SharedPtr<Urho3D::StaticModel>
-StaticModelInstances::CreateNodeComponent(entityx::Entity entity,
+StaticModelInstances::CreateNodeComponent(Urho3D::EntityId entityId,
                                           Urho3D::Node &node,
-                                          const StaticModel &component,
-                                          entityx::EntityManager &entities) {
+                                          const StaticModel &component) {
   return Urho3D::SharedPtr<Urho3D::StaticModel>(
       node.CreateComponent<Urho3D::StaticModel>());
 }
 
-void StaticModelInstances::SyncFromData(entityx::Entity entity,
+void StaticModelInstances::SyncFromData(Urho3D::EntityId entityId,
                                         Urho3D::StaticModel &instance,
                                         const StaticModel &data) {
   if (!data.model.Empty() && (instance.GetModel() == nullptr ||

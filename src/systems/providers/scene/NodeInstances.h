@@ -33,14 +33,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 class NodeInstances
     : public SceneInstances<NodeInstances, Renderable, Urho3D::Node> {
 public:
-  explicit NodeInstances(Urho3D::Scene &scene);
+  explicit NodeInstances(Urho3D::Scene &scene,
+                         Urho3D::EntityRegistry &registry);
 
 private:
   virtual Urho3D::SharedPtr<Urho3D::Node>
-  Create(entityx::Entity entity, const Renderable &component,
-         entityx::EntityManager &entities) override;
+  Create(Urho3D::EntityId entityId, const Renderable &component) override;
 
-  virtual void SyncFromData(entityx::Entity entity, Urho3D::Node &instance,
+  virtual void SyncFromData(Urho3D::EntityId entityId, Urho3D::Node &instance,
                             const Renderable &data) override;
 
   virtual bool DestroyInstance(Urho3D::Node &instance) override;

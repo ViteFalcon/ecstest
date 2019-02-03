@@ -33,15 +33,15 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 class LightInstances
     : public NodeComponentInstances<LightInstances, Light, Urho3D::Light> {
 public:
-  LightInstances(Urho3D::Scene &scene, NodeInstances &nodes);
+  LightInstances(Urho3D::Scene &scene, Urho3D::EntityRegistry &registry,
+                 NodeInstances &nodes);
 
 private:
   Urho3D::SharedPtr<Urho3D::Light>
-  CreateNodeComponent(entityx::Entity entity, Urho3D::Node &node,
-                      const Light &component,
-                      entityx::EntityManager &entities) override;
+  CreateNodeComponent(Urho3D::EntityId entityId, Urho3D::Node &node,
+                      const Light &component) override;
 
-  void SyncFromData(entityx::Entity entity, Urho3D::Light &instance,
+  void SyncFromData(Urho3D::EntityId entityId, Urho3D::Light &instance,
                     const Light &data) override;
 };
 

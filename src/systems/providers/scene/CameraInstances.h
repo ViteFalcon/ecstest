@@ -34,16 +34,16 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 class CameraInstances
     : public NodeComponentInstances<CameraInstances, Camera, Urho3D::Camera> {
 public:
-  CameraInstances(Urho3D::Scene &scene, NodeInstances &nodes,
-                  Urho3D::Context *context, Urho3D::Renderer &renderer);
+  CameraInstances(Urho3D::Scene &scene, Urho3D::EntityRegistry &registry,
+                  NodeInstances &nodes, Urho3D::Context *context,
+                  Urho3D::Renderer &renderer);
 
 protected:
   virtual Urho3D::SharedPtr<Urho3D::Camera>
-  CreateNodeComponent(entityx::Entity entity, Urho3D::Node &node,
-                      const Camera &component,
-                      entityx::EntityManager &entities) override;
+  CreateNodeComponent(Urho3D::EntityId entityId, Urho3D::Node &node,
+                      const Camera &component) override;
 
-  virtual void SyncFromData(entityx::Entity entity, Urho3D::Camera &instance,
+  virtual void SyncFromData(Urho3D::EntityId entityId, Urho3D::Camera &instance,
                             const Camera &data) override;
 
 private:

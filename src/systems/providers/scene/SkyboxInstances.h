@@ -34,16 +34,15 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 class SkyboxInstances
     : public NodeComponentInstances<SkyboxInstances, Skybox, Urho3D::Skybox> {
 public:
-  SkyboxInstances(Urho3D::Scene &scene, NodeInstances nodes,
-                  Urho3D::ResourceCache &resources);
+  SkyboxInstances(Urho3D::Scene &scene, Urho3D::EntityRegistry &registry,
+                  NodeInstances nodes, Urho3D::ResourceCache &resources);
 
 private:
   virtual Urho3D::SharedPtr<Urho3D::Skybox>
-  CreateNodeComponent(entityx::Entity entity, Urho3D::Node &node,
-                      const Skybox &component,
-                      entityx::EntityManager &entities) override;
+  CreateNodeComponent(Urho3D::EntityId entityId, Urho3D::Node &node,
+                      const Skybox &component) override;
 
-  virtual void SyncFromData(entityx::Entity entity, Urho3D::Skybox &instance,
+  virtual void SyncFromData(Urho3D::EntityId entityId, Urho3D::Skybox &instance,
                             const Skybox &data) override;
 
   Urho3D::ResourceCache &mResources;

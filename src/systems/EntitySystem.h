@@ -21,36 +21,31 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ------------------------------------------------------------------------------------------------------------------------
 */
 
-#ifndef NINPOTEST_SOUNDLISTENERINSTANCES_H
-#define NINPOTEST_SOUNDLISTENERINSTANCES_H
+#ifndef NINPOTEST_ENTITYSYSTEM_H
+#define NINPOTEST_ENTITYSYSTEM_H
 
-#include "NodeComponentInstances.h"
+#include "../common/Types.h"
+#include "../events/UpdateEventData.h"
 
-#include <Urho3D/Audio/Audio.h>
-#include <Urho3D/Audio/SoundListener.h>
+#include <Urho3D/Core/Object.h>
 
-#include "../../../components/SoundListener.h"
-
-class SoundListenerInstances
-    : public NodeComponentInstances<SoundListenerInstances, SoundListener,
-                                    Urho3D::SoundListener> {
+namespace Urho3D {
+class EntitySystem : public Object {
+  URHO3D_OBJECT(EntitySystem, Object)
 public:
-  SoundListenerInstances(Urho3D::Scene &scene, Urho3D::EntityRegistry &registry,
-                         NodeInstances nodes, Urho3D::Audio &audio);
+  EntitySystem(Context *context, EntityRegistry &registry);
+
+protected: // methods
+  virtual void Update(UpdateEventData &data, EntityRegistry &registry) {}
+
+protected:
+  EntityRegistry &mRegistry;
 
 private:
-  virtual Urho3D::SharedPtr<Urho3D::SoundListener>
-  CreateNodeComponent(Urho3D::EntityId entityId, Urho3D::Node &node,
-                      const SoundListener &component) override;
-
-  virtual void SyncFromData(Urho3D::EntityId entityId,
-                            Urho3D::SoundListener &instance,
-                            const SoundListener &data) override;
-
-  virtual bool DestroyInstance(Urho3D::SoundListener &value) override;
-
-  Urho3D::Audio &mAudio;
-  Urho3D::EntityId mCurrentListener;
+  void OnUpdate(Urho3D::StringHash eventType, Urho3D::VariantMap &eventData);
 };
+} // namespace Urho3D
 
-#endif // NINPOTEST_SOUNDLISTENERINSTANCES_H
+#define ENTITY_SYSTEM(typeName) URHO3D_OBJECT(typeName, Urho3D::EntitySystem)
+
+#endif // NINPOTEST_ENTITYSYSTEM_H

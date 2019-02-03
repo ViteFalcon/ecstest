@@ -26,41 +26,40 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "NodeInstances.h"
 
+#include "../../../components/Renderable.h"
+
 template <class DerivedType, typename ComponentType, typename ConcreteType,
           typename InstanceComponentType = InstanceComponent<ConcreteType>>
 class NodeComponentInstances
     : public SceneInstances<DerivedType, ComponentType, ConcreteType,
                             InstanceComponentType> {
 public:
-  NodeComponentInstances(Urho3D::Scene &scene, NodeInstances &nodes,
-                         Urho3D::String name)
+  NodeComponentInstances(Urho3D::Scene &scene, Urho3D::EntityRegistry &registry,
+                         NodeInstances &nodes, Urho3D::String name)
       : SceneInstances<DerivedType, ComponentType, ConcreteType,
-                       InstanceComponentType>(scene, name),
+                       InstanceComponentType>(scene, registry, name),
         mNodes(nodes) {}
 
-  virtual bool HasDependencies(entityx::Entity entity) const override {
-    auto renderable = entity.component<Renderable>();
-    return (bool)renderable;
+  virtual bool HasDependencies(Urho3D::EntityId entityId) const override {
+    return this->mRegistry.template has<Renderable>(entityId);
   }
 
 protected:
   virtual Urho3D::SharedPtr<ConcreteType>
-  Create(entityx::Entity entity, const ComponentType &component,
-         entityx::EntityManager &entities) override {
+  Create(Urho3D::EntityId entityId, const ComponentType &component) override {
     Urho3D::SharedPtr<Urho3D::Node> node;
-    if (!mNodes.Get(node, entity, entities)) {
+    if (!mNodes.Get(node, entityId, this->mRegistry)) {
       URHO3D_LOGERRORF("Node for '%s' could not be found!",
-                       this->GetName(entity).CString());
+                       this->GetName(entityId).CString());
       return Urho3D::SharedPtr<ConcreteType>{};
     }
 
-    return CreateNodeComponent(entity, *node, component, entities);
+    return CreateNodeComponent(entityId, *node, component);
   }
 
   virtual Urho3D::SharedPtr<ConcreteType>
-  CreateNodeComponent(entityx::Entity entity, Urho3D::Node &node,
-                      const ComponentType &component,
-                      entityx::EntityManager &entities) = 0;
+  CreateNodeComponent(Urho3D::EntityId entityId, Urho3D::Node &node,
+                      const ComponentType &component) = 0;
 
   virtual bool DestroyInstance(ConcreteType &value) override {
     auto node = value.GetNode();

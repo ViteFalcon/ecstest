@@ -19,12 +19,12 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 #ifndef NINPOTEST_SOUNDLISTENER_H
 #define NINPOTEST_SOUNDLISTENER_H
 
-#include <entityx/Entity.h>
+#include "../common/Types.h"
 
 struct SoundListener {
-  SoundListener(entityx::Entity::Id entityId) : listenerId(entityId) {}
+  SoundListener(Urho3D::EntityId entityId) : listenerId(entityId) {}
 
-  entityx::Entity::Id listenerId;
+  Urho3D::EntityId listenerId;
 };
 
 #endif //NINPOTEST_SOUNDLISTENER_H

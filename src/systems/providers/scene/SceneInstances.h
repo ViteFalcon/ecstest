@@ -25,9 +25,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define NINPOTEST_SCENEINSTANCES_H
 
 #include "../../../common/Optional.h"
+#include "../../../common/Types.h"
 #include "../../../components/Name.h"
-
-#include <entityx/Entity.h>
 
 #include <Urho3D/Container/Ptr.h>
 #include <Urho3D/IO/Log.h>
@@ -42,137 +41,133 @@ template <typename ConcreteType> struct InstanceComponent {
 
 template <class DerivedType, typename ComponentType, typename ConcreteType,
           typename InstanceComponentType = InstanceComponent<ConcreteType>>
-class SceneInstances : public entityx::Receiver<DerivedType> {
+class SceneInstances {
+protected:
+  Urho3D::Scene &mScene;
+  Urho3D::EntityRegistry &mRegistry;
+  Urho3D::String mInstanceName;
+
 public:
-  SceneInstances(Urho3D::Scene &scene, Urho3D::String instanceName)
-      : mScene(scene), mInstanceName(instanceName) {}
+  SceneInstances(Urho3D::Scene &scene, Urho3D::EntityRegistry &registry,
+                 Urho3D::String instanceName)
+      : mScene(scene), mRegistry(registry), mInstanceName(instanceName) {
+    auto destructionCallback = registry.destruction<ComponentType>();
+    destructionCallback
+        .template connect<SceneInstances, &SceneInstances::onComponentRemoved>(
+            this);
+  }
   virtual ~SceneInstances() = default;
 
-  void Configure(entityx::EventManager &eventManager) {
-    eventManager.subscribe<entityx::ComponentRemovedEvent<ComponentType>>(
-        *(DerivedType *)this);
+  void onComponentRemoved(Urho3D::EntityRegistry &registry,
+                          Urho3D::EntityId entityId) {
+    Destroy(entityId);
   }
 
-  void receive(const entityx::ComponentRemovedEvent<ComponentType> &event) {
-    auto entity = event.entity;
-    Destroy(entity);
-  }
+  virtual bool HasDependencies(Urho3D::EntityId entityId) const { return true; }
 
-  virtual bool HasDependencies(entityx::Entity entity) const { return true; }
-
-  Urho3D::SharedPtr<ConcreteType> GetIfExists(entityx::Entity entity) {
-    auto instance = entity.component<InstanceComponentType>();
-    if (instance) {
-      return instance->value;
+  Urho3D::SharedPtr<ConcreteType>
+  GetIfExists(Urho3D::EntityId entityId, Urho3D::EntityRegistry &registry) {
+    if (registry.has<InstanceComponentType>(entityId)) {
+      return registry.get<InstanceComponentType>(entityId).value;
     }
     return Urho3D::SharedPtr<ConcreteType>{};
   }
 
-  bool Get(Urho3D::SharedPtr<ConcreteType> &out, entityx::Entity entity,
-           entityx::EntityManager &entities) {
-    auto component = entity.component<ComponentType>();
-    if (!component) {
+  bool Get(Urho3D::SharedPtr<ConcreteType> &out, Urho3D::EntityId entityId,
+           Urho3D::EntityRegistry &registry) {
+    if (!registry.has<ComponentType>(entityId)) {
       out.Reset();
       return false;
     }
 
-    out = GetIfExists(entity);
+    out = GetIfExists(entityId, registry);
     if (out) {
       return true;
     }
 
-    if (!HasDependencies(entity)) {
+    if (!HasDependencies(entityId)) {
       return false;
     }
 
-    auto instanceComponent =
-        CreateInstanceComponent(entity, *component, entities);
+    auto &component = registry.get<ComponentType>(entityId);
+    auto instanceComponent = CreateInstanceComponent(entityId, component);
     if (!instanceComponent.value) {
       URHO3D_LOGERRORF("Failed to create concrete instance of type '%s'",
-                       GetName(entity).CString());
+                       GetName(entityId).CString());
       return false;
     }
-    entity.assign_from_copy(instanceComponent);
+    registry.assign<InstanceComponentType>(entityId, instanceComponent);
     out = instanceComponent.value;
-    URHO3D_LOGDEBUGF("Loaded '%s' instance", GetName(entity).CString());
+    URHO3D_LOGDEBUGF("Loaded '%s' instance", GetName(entityId).CString());
     return true;
   }
 
-  void Sync(entityx::Entity entity, entityx::EntityManager &entities) {
-    auto data = entity.component<ComponentType>();
-    if (!data) {
+  void Sync(Urho3D::EntityId entityId, Urho3D::EntityRegistry &registry) {
+    if (!registry.has<ComponentType>(entityId)) {
       return;
     }
 
     Urho3D::SharedPtr<ConcreteType> instance;
-    if (!Get(instance, entity, entities)) {
+    if (!Get(instance, entityId, registry)) {
       URHO3D_LOGERRORF("Failed to find concrete instance for component '%s'",
-                       GetName(entity).CString());
+                       GetName(entityId).CString());
       return;
     }
 
-    SyncFromData(entity, *instance, *data);
+    auto &data = registry.get<ComponentType>(entityId);
+    SyncFromData(entityId, *instance, data);
   }
 
-  void Destroy(entityx::Entity entity) {
-    auto instance = entity.component<InstanceComponentType>();
-    if (!instance || !instance->value) {
+  void Destroy(Urho3D::EntityId entityId) {
+    Urho3D::SharedPtr<ConcreteType> instance{nullptr};
+    if (mRegistry.has<InstanceComponentType>(entityId)) {
+      instance = mRegistry.get<InstanceComponentType>(entityId).value;
+    }
+    if (!instance) {
       URHO3D_LOGINFOF("The concrete instance for '%s' could not be found",
-                      GetName(entity).CString());
+                      GetName(entityId).CString());
       return;
     }
-    URHO3D_LOGDEBUGF("Destroying '%s'", GetName(entity).CString());
-    if (!DestroyInstance(*(instance->value))) {
-      URHO3D_LOGERRORF("Failed to cleanly clean up entity: '%s'", GetName(entity).CString());
+    URHO3D_LOGDEBUGF("Destroying '%s'", GetName(entityId).CString());
+    if (!DestroyInstance(*instance)) {
+      URHO3D_LOGERRORF("Failed to cleanly clean up entity: '%s'",
+                       GetName(entityId).CString());
     }
   }
 
 protected:
-  Urho3D::String GetName(entityx::Entity& entity) {
+  Urho3D::String GetName(Urho3D::EntityId entityId) {
 #ifdef URHO3D_LOGGING
     std::stringstream nameBuilder;
-    nameBuilder << "[";
-    auto nameComponent = entity.component<Name>();
-    if (nameComponent) {
-      nameBuilder << nameComponent->value.CString();
-    } else {
-      nameBuilder << "NO-NAME";
-    }
-    nameBuilder << "](" << entity.id().id() << ")";
+    nameBuilder << "[" << GetAssignedName(entityId).CString() << "]("
+                << entityId << ")";
     return Urho3D::String{nameBuilder.str().c_str()};
 #else
     return Urho3D::String{entity.id().id()};
 #endif
   }
 
-  Urho3D::String GetAssignedName(entityx::Entity entity) {
-    auto name = entity.component<Name>();
-    if (name) {
-      return name->value;
+  Urho3D::String GetAssignedName(Urho3D::EntityId entityId) {
+    if (mRegistry.has<Name>(entityId)) {
+      return mRegistry.get<Name>(entityId).value;
     }
-    return Urho3D::String::EMPTY;
+    return "<NO-NAME>";
   }
 
   virtual InstanceComponentType
-  CreateInstanceComponent(entityx::Entity entity,
-                          const ComponentType &component,
-                          entityx::EntityManager &entities) {
-    auto concreteInstance = Create(entity, component, entities);
+  CreateInstanceComponent(Urho3D::EntityId entity,
+                          const ComponentType &component) {
+    auto concreteInstance = Create(entity, component);
     return InstanceComponentType{concreteInstance};
   }
 
   virtual Urho3D::SharedPtr<ConcreteType>
-  Create(entityx::Entity entity, const ComponentType &component,
-         entityx::EntityManager &entities) = 0;
+  Create(Urho3D::EntityId entityId, const ComponentType &component) = 0;
 
-  virtual void SyncFromData(entityx::Entity entity, ConcreteType &instance,
+  virtual void SyncFromData(Urho3D::EntityId entityId, ConcreteType &instance,
                             const ComponentType &data) = 0;
 
   virtual bool DestroyInstance(ConcreteType &instance) = 0;
-
-protected:
-  Urho3D::Scene &mScene;
-  Urho3D::String mInstanceName;
 };
 
 #endif // NINPOTEST_SCENEINSTANCES_H

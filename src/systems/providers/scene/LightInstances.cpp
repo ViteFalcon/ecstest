@@ -23,17 +23,18 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "LightInstances.h"
 
-LightInstances::LightInstances(Urho3D::Scene &scene, NodeInstances &nodes)
-    : NodeComponentInstances(scene, nodes, "Light") {}
+LightInstances::LightInstances(Urho3D::Scene &scene,
+                               Urho3D::EntityRegistry &registry,
+                               NodeInstances &nodes)
+    : NodeComponentInstances(scene, registry, nodes, "Light") {}
 
-Urho3D::SharedPtr<Urho3D::Light>
-LightInstances::CreateNodeComponent(entityx::Entity entity, Urho3D::Node &node,
-                                    const Light &component,
-                                    entityx::EntityManager &entities) {
-  return Urho3D::SharedPtr<Urho3D::Light>(node.CreateComponent<Urho3D::Light>());
+Urho3D::SharedPtr<Urho3D::Light> LightInstances::CreateNodeComponent(
+    Urho3D::EntityId entityId, Urho3D::Node &node, const Light &component) {
+  return Urho3D::SharedPtr<Urho3D::Light>(
+      node.CreateComponent<Urho3D::Light>());
 }
 
-void LightInstances::SyncFromData(entityx::Entity entity,
+void LightInstances::SyncFromData(Urho3D::EntityId entityId,
                                   Urho3D::Light &instance, const Light &data) {
   instance.SetLightType(data.type);
   instance.SetBrightness(data.brightness);

@@ -29,29 +29,22 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "../components/Position.h"
 #include "../components/Renderable.h"
 #include "../components/Scale.h"
+#include "../components/Skybox.h"
 #include "../components/Sound.h"
 
 #include "../events/GameEvents.h"
 
+#include "../components/Camera.h"
 #include "../components/Light.h"
+#include "../components/SoundListener.h"
+#include "../components/StaticModel.h"
 #include "../components/Velocity.h"
-#include "../systems/MovementSystem.h"
-#include "../systems/UrhoSystem.h"
 
-#include <Urho3D/Graphics/DebugRenderer.h>
-#include <Urho3D/Graphics/Octree.h>
-#include <Urho3D/Graphics/Renderer.h>
 #include <Urho3D/Input/Input.h>
 
 DemoState::DemoState(Urho3D::Context *context)
-    : GameState(context), mUI(new DemoUI(context)) {
-  systems.add<MovementSystem>();
-  systems.add<UrhoSystem>(context, mScene);
-  systems.configure();
-
-  mScene->CreateComponent<Urho3D::Octree>();
-  mScene->CreateComponent<Urho3D::DebugRenderer>();
-
+    : GameState(context), mUI(new DemoUI(context)), mCamera(mRegistry),
+      mBox(mRegistry) {
   // Let's put some sky in there.
   // Again, if the engine can't find these resources you need to check
   // the "ResourcePrefixPath". These files come with Urho3D.
@@ -61,7 +54,8 @@ DemoState::DemoState(Urho3D::Context *context)
   sky.assign<Scale>(500.0f);
 
   // Let's put a box in there.
-  mBox = CreateRenderableEntity("Box");
+  mBox.assign<Name>("Box");
+  mBox.assign<Renderable>();
   mBox.assign<StaticModel>("Models/Box.mdl", "Materials/Stone.xml");
   mBox.assign<Position>(0, 2, 15);
   mBox.assign<Direction>();
@@ -84,26 +78,27 @@ DemoState::DemoState(Urho3D::Context *context)
   }
 
   // We need a camera from which the viewport can render.
-  mCamera = CreateRenderableEntity("Camera");
-  mCamera.assign<Camera>()->farClip = 2000.0f;
+  mCamera.assign<Name>("Camera");
+  mCamera.assign<Renderable>();
+  mCamera.assign<Camera>().farClip = 2000.0f;
   mCamera.assign<Position>();
   mCamera.assign<Velocity>();
   mCamera.assign<Direction>();
-  mCamera.assign<SoundListener>(mCamera.id());
+  mCamera.assign<SoundListener>(mCamera.entity());
 
   // Create a red directional light (sun)
   {
     auto light = CreateRenderableEntity("RedDirectionalLight");
-    auto direction = light.assign<Direction>();
-    direction->SetDirection(Urho3D::Vector3::FORWARD);
-    direction->Yaw(50);
-    direction->Pitch(10);
+    auto &direction = light.assign<Direction>();
+    direction.SetDirection(Urho3D::Vector3::FORWARD);
+    direction.Yaw(50);
+    direction.Pitch(10);
     auto l = Light{};
     l.type = Urho3D::LIGHT_DIRECTIONAL;
     l.brightness = 1.6;
     l.color = Urho3D::Color(1.0, .6, 0.3, 1);
     l.castShadows = true;
-    light.assign_from_copy(l);
+    light.assign<Light>(l);
   }
   // Create a blue point light
   {
@@ -115,19 +110,19 @@ DemoState::DemoState(Urho3D::Context *context)
     l.brightness = 1.7;
     l.color = Urho3D::Color(0.5, .5, 1.0, 1);
     l.castShadows = true;
-    light.assign_from_copy(l);
+    light.assign<Light>(l);
   }
   // add a green spot light to the camera node
   {
-    auto light = CreateRenderableEntity("GreenSpotLight", mCamera.id());
-    light.assign<Direction>()->Pitch(15); // point slightly downwards
+    auto light = CreateRenderableEntity("GreenSpotLight", mCamera.entity());
+    light.assign<Direction>().Pitch(15); // point slightly downwards
     auto l = Light{};
     l.type = Urho3D::LIGHT_SPOT;
     l.range = 20;
     l.color = Urho3D::Color(.6, 1, .6, 1.0);
     l.brightness = 2.8;
     l.fov = 25;
-    light.assign_from_copy(l);
+    light.assign<Light>(l);
   }
   SetBackgroundMusic("Music/ibi - Some Sand.ogg");
 
@@ -163,7 +158,7 @@ void DemoState::OnUpdate(UpdateEventData &data) {
 
   if (input->GetKeyPress(Urho3D::KEY_SPACE)) {
     auto explosion = ::Sound("Sounds/BigExplosion.wav");
-    PlaySound("BigExplosion", explosion, mBox.id());
+    PlaySound("BigExplosion", explosion, mBox.entity());
   }
 
   Urho3D::Vector3 direction = Urho3D::Vector3::ZERO;
@@ -179,8 +174,8 @@ void DemoState::OnUpdate(UpdateEventData &data) {
   if (input->GetKeyDown(Urho3D::KEY_D)) {
     direction += Urho3D::Vector3::RIGHT * MOVE_SPEED;
   }
-  mCamera.component<Velocity>()->value =
-      mCamera.component<Direction>()->value * direction;
+  mCamera.get<Velocity>().value =
+      mCamera.get<Direction>().value * direction;
 
   if (!GetSubsystem<Urho3D::Input>()->IsMouseVisible()) {
     // Use this frame's mouse motion to adjust camera node yaw and pitch. Clamp
@@ -192,9 +187,9 @@ void DemoState::OnUpdate(UpdateEventData &data) {
     pitch_ += MOUSE_SENSITIVITY * mouseMove.y_;
     pitch_ = Urho3D::Clamp(pitch_, -90.0f, 90.0f);
     // Reset rotation and set yaw and pitch again
-    auto direction = mCamera.component<Direction>();
-    direction->SetDirection(Urho3D::Vector3::FORWARD);
-    direction->Yaw(yaw_);
-    direction->Pitch(pitch_);
+    auto &direction = mCamera.get<Direction>();
+    direction.SetDirection(Urho3D::Vector3::FORWARD);
+    direction.Yaw(yaw_);
+    direction.Pitch(pitch_);
   }
 }

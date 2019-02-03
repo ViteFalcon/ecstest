@@ -35,16 +35,15 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 class SoundInstances : public NodeComponentInstances<SoundInstances, Sound,
                                                      Urho3D::SoundSource3D> {
 public:
-  SoundInstances(Urho3D::Scene &scene, NodeInstances &nodes,
-                 Urho3D::ResourceCache &resources);
+  SoundInstances(Urho3D::Scene &scene, Urho3D::EntityRegistry &registry,
+                 NodeInstances &nodes, Urho3D::ResourceCache &resources);
 
 protected:
   virtual Urho3D::SharedPtr<Urho3D::SoundSource3D>
-  CreateNodeComponent(entityx::Entity entity, Urho3D::Node &node,
-                      const Sound &component,
-                      entityx::EntityManager &entities) override;
+  CreateNodeComponent(Urho3D::EntityId entityId, Urho3D::Node &node,
+                      const Sound &component) override;
 
-  virtual void SyncFromData(entityx::Entity entity,
+  virtual void SyncFromData(Urho3D::EntityId entityId,
                             Urho3D::SoundSource3D &instance,
                             const Sound &data) override;
 
@@ -52,7 +51,7 @@ protected:
 
 private:
   Urho3D::ResourceCache &mResources;
-  Urho3D::HashMap<unsigned int, entityx::Entity> mSounds;
+  Urho3D::HashMap<unsigned int, Urho3D::EntityId> mSounds;
 };
 
 #endif // NINPOTEST_SOUNDINSTANCES_H

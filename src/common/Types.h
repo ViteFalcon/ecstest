@@ -21,36 +21,20 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ------------------------------------------------------------------------------------------------------------------------
 */
 
-#ifndef NINPOTEST_SOUNDLISTENERINSTANCES_H
-#define NINPOTEST_SOUNDLISTENERINSTANCES_H
+#ifndef NINPOTEST_TYPES_H
+#define NINPOTEST_TYPES_H
 
-#include "NodeComponentInstances.h"
+#include <cstdint>
+#include <entt/entt.hpp>
+#include <entt/entity/entity.hpp>
+#include <entt/entity/actor.hpp>
 
-#include <Urho3D/Audio/Audio.h>
-#include <Urho3D/Audio/SoundListener.h>
+namespace Urho3D {
+using EntityId = std::uint32_t;
+using EntityRegistry = entt::Registry<EntityId>;
+using Entity = entt::Actor<EntityId>;
 
-#include "../../../components/SoundListener.h"
+static const EntityId NullEntityId = entt::null;
+} // namespace Urho3D
 
-class SoundListenerInstances
-    : public NodeComponentInstances<SoundListenerInstances, SoundListener,
-                                    Urho3D::SoundListener> {
-public:
-  SoundListenerInstances(Urho3D::Scene &scene, Urho3D::EntityRegistry &registry,
-                         NodeInstances nodes, Urho3D::Audio &audio);
-
-private:
-  virtual Urho3D::SharedPtr<Urho3D::SoundListener>
-  CreateNodeComponent(Urho3D::EntityId entityId, Urho3D::Node &node,
-                      const SoundListener &component) override;
-
-  virtual void SyncFromData(Urho3D::EntityId entityId,
-                            Urho3D::SoundListener &instance,
-                            const SoundListener &data) override;
-
-  virtual bool DestroyInstance(Urho3D::SoundListener &value) override;
-
-  Urho3D::Audio &mAudio;
-  Urho3D::EntityId mCurrentListener;
-};
-
-#endif // NINPOTEST_SOUNDLISTENERINSTANCES_H
+#endif // NINPOTEST_TYPES_H

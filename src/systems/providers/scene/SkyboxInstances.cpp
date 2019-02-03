@@ -26,18 +26,20 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <Urho3D/Graphics/Material.h>
 #include <Urho3D/Graphics/Model.h>
 
-SkyboxInstances::SkyboxInstances(Urho3D::Scene &scene, NodeInstances nodes,
+SkyboxInstances::SkyboxInstances(Urho3D::Scene &scene,
+                                 Urho3D::EntityRegistry &registry,
+                                 NodeInstances nodes,
                                  Urho3D::ResourceCache &resources)
-    : NodeComponentInstances(scene, nodes, "Skybox"), mResources(resources) {}
+    : NodeComponentInstances(scene, registry, nodes, "Skybox"),
+      mResources(resources) {}
 
 Urho3D::SharedPtr<Urho3D::Skybox>
-SkyboxInstances::CreateNodeComponent(entityx::Entity entity, Urho3D::Node &node,
-                                     const Skybox &component,
-                                     entityx::EntityManager &entities) {
+SkyboxInstances::CreateNodeComponent(Urho3D::EntityId entityId, Urho3D::Node &node,
+                                     const Skybox &component) {
   return Urho3D::SharedPtr{node.CreateComponent<Urho3D::Skybox>()};
 }
 
-void SkyboxInstances::SyncFromData(entityx::Entity entity,
+void SkyboxInstances::SyncFromData(Urho3D::EntityId entityId,
                                    Urho3D::Skybox &instance,
                                    const Skybox &data) {
   if (!data.model.Empty() && (instance.GetModel() == nullptr ||

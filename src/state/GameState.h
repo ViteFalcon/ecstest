@@ -24,11 +24,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef NINPOTEST_GAMESCENE_H
 #define NINPOTEST_GAMESCENE_H
 
-#include <entityx/entityx.h>
+#include <entt/entt.hpp>
 
 #include <Urho3D/Core/Object.h>
 #include <Urho3D/Resource/ResourceCache.h>
 #include <Urho3D/Scene/Scene.h>
+
+#include "../common/Types.h"
 
 #include "../events/BeginFrameData.h"
 #include "../events/KeyDownData.h"
@@ -38,9 +40,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "../components/Renderable.h"
 #include "../components/Sound.h"
 #include "../events/SoundFinishedEventData.h"
+#include "../systems/EntitySystem.h"
 #include "../ui/StatusOverlay.h"
 
-class GameState : public Urho3D::Object, public entityx::EntityX {
+class GameState : public Urho3D::Object {
   URHO3D_OBJECT(GameState, Urho3D::Object)
 public:
   GameState(Urho3D::Context *context);
@@ -98,7 +101,7 @@ protected:
    * @param entity entity that held the sound
    * @param data Urho3D's sound finished event data
    */
-  virtual void OnSoundFinished(const entityx::Entity entity,
+  virtual void OnSoundFinished(const Urho3D::EntityId entityId,
                                SoundFinishedEventData &data) {}
 
   void SubscribeToBeginFrameEvents();
@@ -143,36 +146,44 @@ private:
                            Urho3D::VariantMap &eventData);
 
 protected:
-  inline entityx::Entity CreateEntity() { return entities.create(); }
+  void AddEntitySystem(Urho3D::EntitySystem *system);
 
-  inline entityx::Entity CreateEntity(const Urho3D::String &name) {
-    auto entity = entities.create();
+  template <typename Component, typename... Args>
+  inline Component &assignComponent(const Urho3D::EntityId entity,
+                                    Args &&... args) {
+    mRegistry.assign(entity, std::forward<Args>(args)...);
+  }
+
+  inline Urho3D::Entity CreateEntity() {
+    return Urho3D::Entity{mRegistry};
+  }
+
+  inline Urho3D::Entity CreateEntity(const Urho3D::String &name) {
+    auto entity = CreateEntity();
     entity.assign<Name>(name);
     return entity;
   }
 
-  inline entityx::Entity CreateRenderableEntity() {
+  inline Urho3D::Entity CreateRenderableEntity() {
     auto entity = CreateEntity();
     entity.assign<Renderable>();
     return entity;
   }
 
-  inline entityx::Entity CreateRenderableEntity(const Urho3D::String &name) {
+  inline Urho3D::Entity CreateRenderableEntity(const Urho3D::String &name) {
     auto entity = CreateEntity(name);
     entity.assign<Renderable>();
     return entity;
   }
 
-  inline entityx::Entity
-  CreateRenderableEntity(const entityx::Entity::Id parentId) {
+  inline Urho3D::Entity CreateRenderableEntity(const Urho3D::EntityId parentId) {
     auto entity = CreateEntity();
     entity.assign<Renderable>(parentId);
     return entity;
   }
 
-  inline entityx::Entity
-  CreateRenderableEntity(const Urho3D::String &name,
-                         const entityx::Entity::Id parentId) {
+  inline Urho3D::Entity CreateRenderableEntity(const Urho3D::String &name,
+                                           const Urho3D::EntityId parentId) {
     auto entity = CreateEntity(name);
     entity.assign<Renderable>(parentId);
     return entity;
@@ -182,17 +193,18 @@ protected:
 
   void PlaySound(const Sound &sound);
   void PlaySound(const Urho3D::String &name, const Sound &sound);
-  void PlaySound(const Sound &sound, const entityx::Entity::Id parentId);
+  void PlaySound(const Sound &sound, const Urho3D::EntityId parentId);
   void PlaySound(const Urho3D::String &name, const Sound &sound,
-                 const entityx::Entity::Id parentId);
+                 const Urho3D::EntityId parentId);
 
 protected:
   Urho3D::ResourceCache &mResourceCache;
   Urho3D::SharedPtr<Urho3D::Scene> mScene;
-  entityx::Entity mBackgroundMusic;
+  Urho3D::EntityRegistry mRegistry;
+  Urho3D::Entity mBackgroundMusic;
 
 private:
-  void PlayEntitySound(entityx::Entity entity, const Sound &sound);
+  void PlayEntitySound(Urho3D::Entity &entity, const Sound &sound);
 };
 
 #define GAME_STATE(ClassName) URHO3D_OBJECT(ClassName, GameState)

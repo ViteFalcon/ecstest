@@ -36,50 +36,32 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "../components/Scale.h"
 
 UrhoSystem::UrhoSystem(Urho3D::Context *context,
+                       Urho3D::EntityRegistry &registry,
                        Urho3D::SharedPtr<Urho3D::Scene> scene)
-    : mRenderer(*context->GetSubsystem<Urho3D::Renderer>()),
+    : Urho3D::EntitySystem(context, registry),
+      mRenderer(*context->GetSubsystem<Urho3D::Renderer>()),
       mResources(*context->GetSubsystem<Urho3D::ResourceCache>()),
       mAudio(*context->GetSubsystem<Urho3D::Audio>()), mScene(scene),
-      mNodes(*scene), mLights(*scene, mNodes),
-      mStaticModels(*scene, mNodes, mResources),
-      mCameras(*scene, mNodes, context, mRenderer),
-      mSoundListeners(*scene, mNodes, mAudio),
-      mBackgroundInstances(*scene, mResources),
-      mSounds(*scene, mNodes, mResources),
-      mSkyboxes(*scene, mNodes, mResources) {}
-
-void UrhoSystem::configure(entityx::EventManager &eventManager) {
-  mNodes.Configure(eventManager);
-  mLights.Configure(eventManager);
-  mStaticModels.Configure(eventManager);
-  mCameras.Configure(eventManager);
-  mSoundListeners.Configure(eventManager);
-  mBackgroundInstances.Configure(eventManager);
-  mSounds.Configure(eventManager);
-  mSkyboxes.Configure(eventManager);
-  eventManager.subscribe<entityx::EntityDestroyedEvent>(*this);
+      mNodes(*scene, registry), mLights(*scene, registry, mNodes),
+      mStaticModels(*scene, registry, mNodes, mResources),
+      mCameras(*scene, registry, mNodes, context, mRenderer),
+      mSoundListeners(*scene, registry, mNodes, mAudio),
+      mBackgroundInstances(*scene, registry, mResources),
+      mSounds(*scene, registry, mNodes, mResources),
+      mSkyboxes(*scene, registry, mNodes, mResources) {
 }
 
-void UrhoSystem::update(entityx::EntityManager &entities,
-                        entityx::EventManager &events, entityx::TimeDelta dt) {
-  entities.each<Renderable>(
-      [&, this](entityx::Entity entity, Renderable &renderable) {
-        mCameras.Sync(entity, entities);
-        mNodes.Sync(entity, entities);
-        mStaticModels.Sync(entity, entities);
-        mLights.Sync(entity, entities);
-        mBackgroundInstances.Sync(entity, entities);
-        mSounds.Sync(entity, entities);
-        mSoundListeners.Sync(entity, entities);
-        mSounds.Sync(entity, entities);
-        mSkyboxes.Sync(entity, entities);
-      });
-}
-
-void UrhoSystem::receive(const entityx::EntityDestroyedEvent &event) {
-  auto entity = event.entity;
-  auto node = mNodes.GetIfExists(entity);
-  if (node) {
-    mScene->RemoveChild(node);
-  }
+void UrhoSystem::Update(UpdateEventData &data, Urho3D::EntityRegistry &entities) {
+  auto renderables = entities.view<Renderable>();
+  for (auto entity : renderables) {
+    mCameras.Sync(entity, entities);
+    mNodes.Sync(entity, entities);
+    mStaticModels.Sync(entity, entities);
+    mLights.Sync(entity, entities);
+    mBackgroundInstances.Sync(entity, entities);
+    mSounds.Sync(entity, entities);
+    mSoundListeners.Sync(entity, entities);
+    mSounds.Sync(entity, entities);
+    mSkyboxes.Sync(entity, entities);
+  };
 }

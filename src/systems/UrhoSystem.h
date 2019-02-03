@@ -24,7 +24,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef NINPOTEST_RENDERSYSTEM_H
 #define NINPOTEST_RENDERSYSTEM_H
 
-#include <entityx/System.h>
+#include "EntitySystem.h"
 
 #include <Urho3D/Container/HashMap.h>
 #include <Urho3D/Graphics/Renderer.h>
@@ -41,23 +41,18 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "providers/scene/CameraInstances.h"
 #include "providers/scene/LightInstances.h"
 #include "providers/scene/NodeInstances.h"
+#include "providers/scene/SkyboxInstances.h"
+#include "providers/scene/SoundInstances.h"
 #include "providers/scene/SoundListenerInstances.h"
 #include "providers/scene/StaticModelInstances.h"
-#include "providers/scene/SoundInstances.h"
-#include "providers/scene/SkyboxInstances.h"
 
-class UrhoSystem : public entityx::System<UrhoSystem>,
-                     public entityx::Receiver<UrhoSystem> {
+class UrhoSystem : public Urho3D::EntitySystem {
+  ENTITY_SYSTEM(UrhoSystem)
 public:
-  UrhoSystem(Urho3D::Context *context,
-               Urho3D::SharedPtr<Urho3D::Scene> scene);
+  UrhoSystem(Urho3D::Context *context, Urho3D::EntityRegistry &registry, Urho3D::SharedPtr<Urho3D::Scene> scene);
 
-  void configure(entityx::EventManager &eventManager) override;
-
-  void update(entityx::EntityManager &entities, entityx::EventManager &events,
-              entityx::TimeDelta dt) override;
-
-  void receive(const entityx::EntityDestroyedEvent &event);
+private: // methods
+  void Update(UpdateEventData &data, Urho3D::EntityRegistry &registry) override;
 
 private:
   Urho3D::Renderer &mRenderer;

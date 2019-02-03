@@ -38,6 +38,7 @@ set(
     src/common/None.h
     src/common/Optional.h
     src/common/Storage.h
+    src/common/Types.h
     src/components/AngularVelocity.h
     src/components/BackgroundMusic.h
     src/components/Camera.h
@@ -86,6 +87,8 @@ set(
     src/systems/providers/scene/SoundListenerInstances.h
     src/systems/providers/scene/StaticModelInstances.cpp
     src/systems/providers/scene/StaticModelInstances.h
+    src/systems/EntitySystem.cpp
+    src/systems/EntitySystem.h
     src/systems/MovementSystem.cpp
     src/systems/MovementSystem.h
     src/systems/UrhoSystem.cpp
@@ -100,9 +103,8 @@ set(
 # Setup target with resource copying
 setup_main_executable(SOURCE_FILES ${SOURCE_FILES})
 
-find_package(EntityX REQUIRED)
+find_package(Entt REQUIRED)
 
-target_include_directories(${TARGET_NAME} PUBLIC ${URHO3D_HOME}/include ${ENTITYX_INCLUDE_DIR})
-target_link_libraries(${TARGET_NAME} ${ENTITYX_LIBRARY})
+target_include_directories(${TARGET_NAME} PUBLIC ${URHO3D_HOME}/include ${ENTT_INCLUDE_DIR})
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/Data DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/bin/)

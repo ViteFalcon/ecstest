@@ -25,24 +25,23 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "../../../components/Viewport.h"
 
-CameraInstances::CameraInstances(Urho3D::Scene &scene, NodeInstances &nodes,
-                                 Urho3D::Context *context,
+CameraInstances::CameraInstances(Urho3D::Scene &scene,
+                                 Urho3D::EntityRegistry &registry,
+                                 NodeInstances &nodes, Urho3D::Context *context,
                                  Urho3D::Renderer &renderer)
-    : NodeComponentInstances(scene, nodes, "Camera"), mContext(context),
-      mRenderer(renderer) {}
+    : NodeComponentInstances(scene, registry, nodes, "Camera"),
+      mContext(context), mRenderer(renderer) {}
 
-Urho3D::SharedPtr<Urho3D::Camera>
-CameraInstances::CreateNodeComponent(entityx::Entity entity, Urho3D::Node &node,
-                                     const Camera &component,
-                                     entityx::EntityManager &entities) {
+Urho3D::SharedPtr<Urho3D::Camera> CameraInstances::CreateNodeComponent(
+    Urho3D::EntityId entityId, Urho3D::Node &node, const Camera &component) {
   auto camera = node.CreateComponent<Urho3D::Camera>();
-  auto viewportData = entity.component<Viewport>();
-
   int viewportIndex = 0;
   Urho3D::RenderPath *renderPath = nullptr;
-  if (viewportData) {
-    viewportIndex = viewportData->index;
-    renderPath = viewportData->renderPath;
+
+  if (mRegistry.has<Viewport>(entityId)) {
+    auto &viewportData = mRegistry.get<Viewport>(entityId);
+    viewportIndex = viewportData.index;
+    renderPath = viewportData.renderPath;
   }
 
   auto viewport = Urho3D::SharedPtr(
@@ -51,7 +50,7 @@ CameraInstances::CreateNodeComponent(entityx::Entity entity, Urho3D::Node &node,
   return Urho3D::SharedPtr<Urho3D::Camera>(camera);
 }
 
-void CameraInstances::SyncFromData(entityx::Entity entity,
+void CameraInstances::SyncFromData(Urho3D::EntityId entityId,
                                    Urho3D::Camera &instance,
                                    const Camera &data) {
   instance.SetNearClip(data.nearClip);
